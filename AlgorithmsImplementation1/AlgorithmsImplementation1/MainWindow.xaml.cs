@@ -43,7 +43,7 @@ namespace AlgorithmsImplementation1
         private void DrawPoint(object sender, MouseButtonEventArgs e)
         {
             // Criando ponto a partir das coordenadas do clique
-            MyPoint v_NewPoint = new MyPoint(e.GetPosition(Canvas).X, e.GetPosition(Canvas).Y);
+            MyPoint v_NewPoint = new MyPoint((int)e.GetPosition(Canvas).X, (int)e.GetPosition(Canvas).Y);
             // Desenhando pixel nas coordenadas do clique
             DrawPixelByPoint(v_NewPoint);
 
@@ -76,7 +76,7 @@ namespace AlgorithmsImplementation1
             
             // Definindo pontos a serem desenhados a partir do
             // algoritmo DDA
-            List<MyPoint> v_PointsFromLine = v_Line.DDAAlgorithm();
+            List<MyPoint> v_PointsFromLine = v_Line.BresenhamAlgorithm();
 
             foreach (MyPoint v_Point in v_PointsFromLine)
             {
@@ -94,7 +94,7 @@ namespace AlgorithmsImplementation1
             Pixel v_Pixel = new Pixel(this.m_SelectedColor);
 
             // Definindo posição X do pixel
-            Canvas.SetLeft(v_Pixel.m_PixelValue,p_Point.m_X);
+            Canvas.SetLeft(v_Pixel.m_PixelValue, p_Point.m_X);
             // Definindo posição Y do pixel
             Canvas.SetTop(v_Pixel.m_PixelValue, p_Point.m_Y);
 
