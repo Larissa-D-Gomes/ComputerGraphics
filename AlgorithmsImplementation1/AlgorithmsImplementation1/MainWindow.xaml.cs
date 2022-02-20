@@ -20,55 +20,95 @@ namespace AlgorithmsImplementation1
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {
-        public DDALine m_Line;
-
-        public Point m_OutOfLinePoint; 
-
+    {        
+        // Variável para marcar ponto desenhado 
+        // que não pertence a uma reta
+        public MyPoint m_OutOfLinePoint;
+        
+        public Color m_SelectedColor;
+        
         public MainWindow()
         {
             InitializeComponent();
-
-            m_OutOfLinePoint = new Point(-1, -1);
+            // Ponto sem reta vazio (não existe)
+            m_OutOfLinePoint = new MyPoint();
+            // Cor selecionada default -> preto
+            this.m_SelectedColor = (Color)ColorConverter.ConvertFromString("#000000");
         }
 
+        /* Método para desenhar um ponto quando o usuário clica
+         * em alguma área do canvas
+         * @param object sender, MouseButtonEventArgs e
+         */
         private void DrawPoint(object sender, MouseButtonEventArgs e)
         {
-            Point v_NewPoint = e.GetPosition(Canvas);
+            // Criando ponto a partir das coordenadas do clique
+            MyPoint v_NewPoint = new MyPoint(e.GetPosition(Canvas).X, e.GetPosition(Canvas).Y);
+            // Desenhando pixel nas coordenadas do clique
             DrawPixelByPoint(v_NewPoint);
 
-            if (this.m_OutOfLinePoint.X != -1)
+            // Se existe ponto fora de uma reta 
+            if (this.m_OutOfLinePoint.m_X != -1)
             {
+                // Desenhar reta a partir do ponto fora de uma reta
+                // e novo ponto desenhado
                 DrawLine(this.m_OutOfLinePoint, v_NewPoint);
-                m_OutOfLinePoint.X = -1;
+
+                // Setar flag para informar que não há mais 
+                // um ponto fora de uma reta
+                m_OutOfLinePoint.m_X = -1;
             }
-            else
+            else // Se não existir ponto sem reta
             {
+                // Setar novo ponto sem reta
                 this.m_OutOfLinePoint = v_NewPoint;
             }
 
         }
 
-        private void DrawLine(Point p_OutOfLinePoint, Point p_NewPoint)
+        /* Método para desenhar uma reta a partir de 
+         * dois pontos desenhados no canvas
+         * @param MyPoint p_Point1, MyPoint p_Point2
+         */
+        private void DrawLine(MyPoint p_Point1, MyPoint p_Point2)
         {
-            DDALine v_Line = new DDALine(p_OutOfLinePoint, p_NewPoint);
+            MyLine v_Line = new MyLine(p_Point1, p_Point2);
+            
+            // Definindo pontos a serem desenhados a partir do
+            // algoritmo DDA
+            List<MyPoint> v_PointsFromLine = v_Line.DDAAlgorithm();
 
-            List<Point> v_PointsFromLine = v_Line.DDAAlgorithm();
-
-            foreach (Point v_Point in v_PointsFromLine)
+            foreach (MyPoint v_Point in v_PointsFromLine)
             {
+                // Desenhar pixel referente a pontos calculados
                 DrawPixelByPoint(v_Point);
             }
         }
 
-        private void DrawPixelByPoint(Point p_Point)
+        /* Método para desenhar pixels na tela
+         * @param MyPoint p_Point
+         */
+        private void DrawPixelByPoint(MyPoint p_Point)
         {
-            Pixel v_Pixel = new Pixel();
+            // Definindo cor do pixel
+            Pixel v_Pixel = new Pixel(this.m_SelectedColor);
 
-            Canvas.SetLeft(v_Pixel.m_PixelValue, p_Point.X);
-            Canvas.SetTop(v_Pixel.m_PixelValue, p_Point.Y);
+            // Definindo posição X do pixel
+            Canvas.SetLeft(v_Pixel.m_PixelValue,p_Point.m_X);
+            // Definindo posição Y do pixel
+            Canvas.SetTop(v_Pixel.m_PixelValue, p_Point.m_Y);
 
+            // Desenhando pixel
             Canvas.Children.Add(v_Pixel.m_PixelValue);
+        }
+
+        /* Método para selecionar cor a partir de alterações da seleção do componente
+         * de colorPicker
+         * @param object sender, RoutedPropertyChangedEventArgs<Color?> e
+         */
+        public void SelectColor(object sender, RoutedPropertyChangedEventArgs<Color?> e)
+        {
+            m_SelectedColor = (Color) e.NewValue;
         }
     }
 }

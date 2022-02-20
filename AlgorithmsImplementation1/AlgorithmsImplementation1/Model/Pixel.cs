@@ -13,12 +13,18 @@ namespace AlgorithmsImplementation1.Model
     {
         public Rectangle m_PixelValue { get; set; }
 
-        public Pixel()
+        // Construtor vazio
+        public Pixel() : this((Color)ColorConverter.ConvertFromString("#000000")) { }
+
+        // Construtor
+        public Pixel(Color p_Color)
         {
             m_PixelValue = new Rectangle();
             m_PixelValue.Height = 1;
             m_PixelValue.Width = 1;
-            m_PixelValue.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#000000"));
+            m_PixelValue.Fill = new SolidColorBrush(p_Color);
         }
+
+     
     }
 }
