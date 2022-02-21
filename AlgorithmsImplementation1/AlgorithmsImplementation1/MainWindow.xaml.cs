@@ -73,10 +73,16 @@ namespace AlgorithmsImplementation1
         private void DrawLine(MyPoint p_Point1, MyPoint p_Point2)
         {
             MyLine v_Line = new MyLine(p_Point1, p_Point2);
+
             
-            // Definindo pontos a serem desenhados a partir do
-            // algoritmo DDA
-            List<MyPoint> v_PointsFromLine = v_Line.BresenhamAlgorithm();
+            List<MyPoint> v_PointsFromLine;
+             
+            if(RadioButtonBres.IsChecked == true)
+                v_PointsFromLine = v_Line.BresenhamAlgorithm();// Definindo pontos a serem desenhados
+                                                               // a partir do algoritmo de Bresenham 
+            else
+                v_PointsFromLine = v_Line.DDAAlgorithm();// Definindo pontos a serem desenhados
+                                                         // a partir do algoritmo DDA
 
             foreach (MyPoint v_Point in v_PointsFromLine)
             {
@@ -110,5 +116,7 @@ namespace AlgorithmsImplementation1
         {
             m_SelectedColor = (Color) e.NewValue;
         }
+
+         
     }
 }

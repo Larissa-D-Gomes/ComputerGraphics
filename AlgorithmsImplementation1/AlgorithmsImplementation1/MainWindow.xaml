@@ -9,7 +9,11 @@
         Title="Canvas" Height="450" Width="800">
     <Grid>
         <Canvas Name="Canvas" Background="White" MouseLeftButtonDown="DrawPoint" >
-            <xctk:ColorCanvas x:Name="m_ColorPicker"  SelectedColorChanged="SelectColor"/>
+            <xctk:ColorCanvas x:Name="m_ColorPicker"  SelectedColorChanged="SelectColor" HorizontalAlignment="Center" Height="153" VerticalAlignment="Top"/>
+            <TextBlock Canvas.Left="10" FontSize="16" Text="Algoritmo de Rasterização:" Canvas.Top="158" Width="258" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <RadioButton Content="DDA" GroupName="LineAlgorithm" x:Name="RadioButtonDDA" IsChecked="True" Canvas.Left="10" Canvas.Top="184" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <RadioButton Content="Bresenham" GroupName="LineAlgorithm" x:Name="RadioButtonBres" Canvas.Left="10" Canvas.Top="202" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+
         </Canvas>
     </Grid>
 </Window>
