@@ -32,8 +32,8 @@ namespace AlgorithmsImplementation1.Model
             List<MyPoint> v_LinePoints = new List<MyPoint>();
 
             // Definindo Delta x e y da reta
-            int v_DeltaX = this.m_Point2.m_X - this.m_Point1.m_X;
-            int v_DeltaY = this.m_Point2.m_Y - this.m_Point1.m_Y;
+            int v_DeltaX = this.m_Point2.getX() - this.m_Point1.getX();
+            int v_DeltaY = this.m_Point2.getY()- this.m_Point1.getY();
 
             // Definindo quantidade de passos do algoritmo a partir
             // do maior módulo delta de x ou y
@@ -46,8 +46,8 @@ namespace AlgorithmsImplementation1.Model
             double v_IncrY = (double) v_DeltaY / (double) v_Steps;
 
             // X e Y do ponto anterior 
-            double v_InitX = (double) this.m_Point1.m_X;
-            double v_InitY = (double) this.m_Point1.m_Y;
+            double v_InitX = (double) this.m_Point1.getX();
+            double v_InitY = (double) this.m_Point1.getY();
 
             v_LinePoints.Add(new MyPoint((int)Math.Round(v_InitX),
                                              (int)Math.Round(v_InitY)));
@@ -74,8 +74,8 @@ namespace AlgorithmsImplementation1.Model
             List<MyPoint> v_LinePoints = new List<MyPoint>();
 
             // Definindo Delta x e y da reta
-            int v_DeltaX = this.m_Point2.m_X - this.m_Point1.m_X;
-            int v_DeltaY = this.m_Point2.m_Y - this.m_Point1.m_Y;
+            int v_DeltaX = this.m_Point2.getX() - this.m_Point1.getX();
+            int v_DeltaY = this.m_Point2.getY() - this.m_Point1.getY();
 
             // Definindo incremento de X
             int v_IncrX;
@@ -102,8 +102,8 @@ namespace AlgorithmsImplementation1.Model
                 v_IncrY = -1;
             }
 
-            int v_InitX = this.m_Point1.m_X;
-            int v_InitY = this.m_Point1.m_Y;
+            int v_InitX = this.m_Point1.getX();
+            int v_InitY = this.m_Point1.getY();
 
             // Adicionando ponto à reta
             v_LinePoints.Add(new MyPoint(v_InitX, v_InitY));
@@ -180,5 +180,6 @@ namespace AlgorithmsImplementation1.Model
 
             return v_LinePoints;
         }
+
     }
 }

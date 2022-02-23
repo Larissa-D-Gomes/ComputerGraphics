@@ -8,12 +8,20 @@ namespace AlgorithmsImplementation1.Model
 {
     public class MyPolygon
     {
-        public List<MyLine> PolygonLines { get; set; }
+        public int m_NumOfEdges { get; set; }
+        public List<MyLine> m_PolygonLines { get; set; }
 
         // Construtor Vazio
         public MyPolygon()
         {
-            PolygonLines = new List<MyLine>();
+            m_PolygonLines = new List<MyLine>();
+        }
+
+        public void createPolygonByListOfEdges(List<MyPoint> p_Edges)
+        {
+            this.m_NumOfEdges = p_Edges.Count;
+
+            
         }
     }
 }

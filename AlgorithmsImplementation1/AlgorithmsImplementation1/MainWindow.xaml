@@ -7,13 +7,41 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
         Title="Canvas" Height="450" Width="800">
-    <Grid>
-        <Canvas Name="Canvas" Background="White" MouseLeftButtonDown="DrawPoint" >
-            <xctk:ColorCanvas x:Name="m_ColorPicker"  SelectedColorChanged="SelectColor" HorizontalAlignment="Center" Height="153" VerticalAlignment="Top"/>
-            <TextBlock Canvas.Left="10" FontSize="16" Text="Algoritmo de Rasterização:" Canvas.Top="158" Width="258" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <RadioButton Content="DDA" GroupName="LineAlgorithm" x:Name="RadioButtonDDA" IsChecked="True" Canvas.Left="10" Canvas.Top="184" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <RadioButton Content="Bresenham" GroupName="LineAlgorithm" x:Name="RadioButtonBres" Canvas.Left="10" Canvas.Top="202" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+    <Grid Margin="0,135,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="208*"/>
+            <ColumnDefinition Width="593*"/>
+        </Grid.ColumnDefinitions>
+
+        <Menu Height="94" Width="800" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="1,-135,0,0">
+            <Grid>
+                <xctk:ColorCanvas x:Name="m_ColorPicker"  SelectedColorChanged="SelectColor" HorizontalAlignment="Left" Height="94" VerticalAlignment="Center" Width="231" Margin="-8,0,0,0"/>
+
+                <TextBlock FontSize="14" Text="Desenhar:" Width="258" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.438,5.077" Margin="239,-1,0,0"/>
+                <RadioButton Content="Reta" GroupName="Draw" x:Name="RadioButtonLine" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="239,22,0,0"/>
+                <RadioButton Content="Poligono" GroupName="Draw" x:Name="RadioButtonPoligon" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="239,41,0,0"/>
+                <RadioButton Content="Circunferência" GroupName="Draw" x:Name="RadioButtonCirc" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="239,61,0,0"/>
+
+                <TextBlock FontSize="14" Text="Rasterização por:" Width="258" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0,0" Height="46" Margin="381,0,0,0"/>
+                <RadioButton Content="DDA" GroupName="LineAlgorithm" x:Name="RadioButtonDDA" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="381,22,0,0"/>
+                <RadioButton Content="Bresenham" GroupName="LineAlgorithm" x:Name="RadioButtonBres" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="381,0,0,0"/>
+
+                <Button Content="Limpar Tela" Click="RemoveItensFromCanvas" Background="LightGreen" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Margin="385,61,0,0" BorderThickness="1,1,1,1" Height="21" BorderBrush="#FF008310"/>
+            </Grid>
+        </Menu>
+
+        <Canvas Name="Canvas" Background="White" MouseLeftButtonDown="DrawPoint" Margin="0,-41,0,0" Grid.ColumnSpan="2" >
+
+            <TextBlock Canvas.Left="10" FontSize="16" Text="Translação:" Canvas.Top="275" Width="258" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <TextBlock Canvas.Left="20" FontSize="16" Text="X:" Canvas.Top="299" Width="258" HorizontalAlignment="Center" VerticalAlignment="Top" RenderTransformOrigin="0.609,0.495"/>
+            <TextBox Canvas.Left="38" PreviewTextInput="NumberValidationTextBox" TextWrapping="Wrap" Canvas.Top="301" Width="40" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+
+            <TextBlock Canvas.Left="20" FontSize="16" Text="Y:" Canvas.Top="317" Width="252" HorizontalAlignment="Center" VerticalAlignment="Top" RenderTransformOrigin="0.609,0.495"/>
+            <TextBox Canvas.Left="38" PreviewTextInput="NumberValidationTextBox" TextWrapping="Wrap" Canvas.Top="323" Width="40" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+
 
         </Canvas>
+
+
     </Grid>
 </Window>
