@@ -9,38 +9,45 @@
         Title="Canvas" Height="450" Width="800">
     <Grid Margin="0,135,0,0">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="208*"/>
-            <ColumnDefinition Width="593*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Menu Height="94" Width="800" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="1,-135,0,0">
-            <Grid>
-                <xctk:ColorCanvas x:Name="m_ColorPicker"  SelectedColorChanged="SelectColor" HorizontalAlignment="Left" Height="94" VerticalAlignment="Center" Width="231" Margin="-8,0,0,0"/>
+        <Menu Height="117" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.ColumnSpan="2" Margin="1,-135,0,0">
+            <Grid Height="116">
+                <xctk:ColorCanvas x:Name="m_ColorPicker"  SelectedColorChanged="SelectColor" HorizontalAlignment="Left" Height="94" VerticalAlignment="Top" Width="231" Margin="-6,-6,0,0"/>
 
                 <TextBlock FontSize="14" Text="Desenhar:" Width="258" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.438,5.077" Margin="239,-1,0,0"/>
                 <RadioButton Content="Reta" GroupName="Draw" x:Name="RadioButtonLine" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="239,22,0,0"/>
                 <RadioButton Content="Poligono" GroupName="Draw" x:Name="RadioButtonPoligon" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="239,41,0,0"/>
                 <RadioButton Content="Circunferência" GroupName="Draw" x:Name="RadioButtonCirc" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="239,61,0,0"/>
 
-                <TextBlock FontSize="14" Text="Rasterização por:" Width="258" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0,0" Height="46" Margin="381,0,0,0"/>
-                <RadioButton Content="DDA" GroupName="LineAlgorithm" x:Name="RadioButtonDDA" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="381,22,0,0"/>
-                <RadioButton Content="Bresenham" GroupName="LineAlgorithm" x:Name="RadioButtonBres" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="381,0,0,0"/>
+                <TextBlock FontSize="12" Text="Lados:" Width="152" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.609,0.495" Margin="313,40,0,0"/>
+                <TextBox x:Name="InputVertice" Text="3"  PreviewTextInput="NumberValidationTextBox" TextWrapping="Wrap" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="350,39,0,0"/>
 
-                <Button Content="Limpar Tela" Click="RemoveItensFromCanvas" Background="LightGreen" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Margin="385,61,0,0" BorderThickness="1,1,1,1" Height="21" BorderBrush="#FF008310"/>
+                <TextBlock FontSize="14" Text="Rasterização por:" Width="258" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0,0" Height="46" Margin="435,0,0,0"/>
+                <RadioButton Content="DDA" GroupName="LineAlgorithm" IsChecked="True" x:Name="RadioButtonDDA" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="433,22,0,0"/>
+                <RadioButton Content="Bresenham" GroupName="LineAlgorithm" x:Name="RadioButtonBres" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="433,39,0,0"/>
+
+                <Button Content="Limpar Tela" Click="RemoveItensFromCanvas" Background="LightGreen" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Margin="10,93,0,0" BorderThickness="1,1,1,1" Height="21" BorderBrush="#FF008310"/>
+
+                <TextBlock FontSize="14" Text="Transformação:" Width="258" RenderTransformOrigin="0,0" Height="46" HorizontalAlignment="Left" Canvas.Left="488" VerticalAlignment="Top" Canvas.Top="-92" Margin="574,-1,0,0"/>
+                <RadioButton Content="Translação" GroupName="LineTranf" IsChecked="True" x:Name="RadioButtonTransl" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="572,22,0,0"/>
+                <RadioButton Content="Rotação" GroupName="LineTranf" x:Name="RadioButtonRot" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="572,39,0,0"/>
+                <RadioButton Content="Escala" GroupName="LineTranf" x:Name="RadioButtonScale" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="572,55,0,0"/>
+                <RadioButton Content="Reflexão" GroupName="LineTranf" x:Name="RadioButtonRefl" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="572,72,0,0"/>
+
+                <TextBlock FontSize="16" Text="X:" Width="258" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.609,0.495" Margin="695,6,0,0"/>
+                <TextBox PreviewTextInput="NumberValidationTextBox" x:Name="m_XInput" Text="0" TextWrapping="Wrap" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="712,11,0,0"/>
+
+                <TextBlock FontSize="16" Text="Y:" Width="152" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.609,0.495" Margin="695,30,0,0"/>
+                <TextBox PreviewTextInput="NumberValidationTextBox" Text="0"  x:Name="m_YInput" TextWrapping="Wrap"  Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="712,34,0,0"/>
+
+                <Button Content="Aplicar" Click="ApplyTranformation" Background="LightGreen" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Margin="696,61,0,0" BorderThickness="1,1,1,1" Height="21" BorderBrush="#FF008310"/>
+
             </Grid>
         </Menu>
 
-        <Canvas Name="Canvas" Background="White" MouseLeftButtonDown="DrawPoint" Margin="0,-41,0,0" Grid.ColumnSpan="2" >
-
-            <TextBlock Canvas.Left="10" FontSize="16" Text="Translação:" Canvas.Top="275" Width="258" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <TextBlock Canvas.Left="20" FontSize="16" Text="X:" Canvas.Top="299" Width="258" HorizontalAlignment="Center" VerticalAlignment="Top" RenderTransformOrigin="0.609,0.495"/>
-            <TextBox Canvas.Left="38" PreviewTextInput="NumberValidationTextBox" TextWrapping="Wrap" Canvas.Top="301" Width="40" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-
-            <TextBlock Canvas.Left="20" FontSize="16" Text="Y:" Canvas.Top="317" Width="252" HorizontalAlignment="Center" VerticalAlignment="Top" RenderTransformOrigin="0.609,0.495"/>
-            <TextBox Canvas.Left="38" PreviewTextInput="NumberValidationTextBox" TextWrapping="Wrap" Canvas.Top="323" Width="40" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-
-
-        </Canvas>
+        <Canvas Name="Canvas" Background="White" MouseLeftButtonDown="DrawPoint" Grid.ColumnSpan="2" Margin="0,-18,0,0" />
 
 
     </Grid>

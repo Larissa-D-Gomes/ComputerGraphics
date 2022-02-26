@@ -1,14 +1,9 @@
 ﻿using AlgorithmsImplementation1.Model;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -19,31 +14,33 @@ namespace AlgorithmsImplementation1
     /// </summary>
     public partial class MainWindow : Window
     {        
-        // Variável para marcar ponto desenhado 
-        // que não pertence a uma reta
-        public MyPoint m_FirstPoint;
-
-        // Lista para armazenar arestas de um poligono
-        public List<MyPoint> m_PolygonEdges;
+        // Lista pontos desenhados
+        public List<MyPoint> m_PointList;
 
         public MyLine m_Line;
 
         public MyPolygon m_Polygon;
 
-        public Color m_SelectedColor;
+        public MyCircumference m_Circ;
 
+        public Color m_SelectedColor;
+        // Variável para determinar se canvas possuem algum desenho 
+        public bool m_HasDrawing = false;
+
+        // Verificação de input numerico
         private static readonly Regex _regex = new Regex("[^0-9.-]+");
 
         public MainWindow()
         {
             InitializeComponent();
             // Ponto sem reta vazio (não existe)
-            m_FirstPoint = null;
             // Cor selecionada default -> preto
-            this.m_SelectedColor = (Color)ColorConverter.ConvertFromString("#000000");
+            m_SelectedColor = (Color)ColorConverter.ConvertFromString("#000000");
 
-            m_Polygon = new MyPolygon();
+            m_PointList = new List<MyPoint>();
         }
+
+        /********** Métodos de desenho no canvas **********/
 
         /* Método para desenhar um ponto quando o usuário clica
          * em alguma área do canvas
@@ -51,96 +48,108 @@ namespace AlgorithmsImplementation1
          */
         private void DrawPoint(object sender, MouseButtonEventArgs e)
         {
-            // Criando ponto a partir das coordenadas do clique
-            MyPoint v_NewPoint = new MyPoint((int)e.GetPosition(Canvas).X, (int)e.GetPosition(Canvas).Y);
-            // Desenhando pixel nas coordenadas do clique
-            DrawPixelByPoint(v_NewPoint);
+            // Desenhar nova figura apenas quando não houver
+            // outra já desenhada
+            if (!m_HasDrawing)
+            {
+                // Criando ponto a partir das coordenadas do clique
+                MyPoint v_NewPoint = new MyPoint((int)e.GetPosition(Canvas).X, (int)e.GetPosition(Canvas).Y);
+                // Desenhando pixel nas coordenadas do clique
+                DrawPixelByPoint(v_NewPoint);
 
-            setPointToLineOrPolygon(v_NewPoint);
+                setPoint(v_NewPoint);
+            }
 
         }
 
-        private void setPointToLineOrPolygon(MyPoint p_NewPoint)
+        /* Adicionar ponto a lista de pontos e 
+         * desenhar estrutura de dados que ele pertence
+         * @param MyPoint p_NewPoint
+         */
+        private void setPoint(MyPoint p_NewPoint)
         {
+            m_PointList.Add(p_NewPoint);
             if (RadioButtonLine.IsChecked == true)
             {
-                // Se existe ponto fora de uma reta 
-                if (this.m_FirstPoint != null)
+                // Se dois pontos da reta já foram desenhados 
+                if (m_PointList.Count == 2)
                 {
-                    // Desenhar reta a partir do ponto fora de uma reta
-                    // e novo ponto desenhado
-                    DrawLine(this.m_FirstPoint, p_NewPoint);
-
-                    // Setar flag para informar que não há mais 
-                    // um ponto fora de uma reta
-                    m_FirstPoint = null;
-                }
-                else // Se não existir ponto sem reta
-                {
-                    // Setar novo ponto sem reta
-                    this.m_FirstPoint = p_NewPoint;
+                    // Desenhar reta a partir dos pontos desenhados
+                    m_Line = new MyLine(m_PointList[0], m_PointList[1]);
+                    DrawLine();
                 }
             } else if (RadioButtonCirc.IsChecked == true)
             {
-                if (m_FirstPoint != null)
+                // Se dois pontos da circunferência já foram desenhados 
+                if (this.m_PointList.Count == 2)
                 {
-                    DrawCirc(m_FirstPoint, p_NewPoint);
+                    // Desenhar circunferência considerando o primeiro
+                    // ponto desenhado com o centro, e o segundo como
+                    // ponto tangente ao arco
+                    int v_Radius = (int)Math.Round(MyPoint.GetDistanceBetweenTwoPoint(m_PointList[0], m_PointList[1]));
+                    m_Circ = new MyCircumference(m_PointList[0], v_Radius);
+                    DrawCirc();
                 }
-                else
-                {
-                    m_FirstPoint = p_NewPoint;
-                }  
-            } else{
-                if (m_PolygonEdges.Count < 3) {
-                    m_PolygonEdges.Add(p_NewPoint);
-                    if (m_PolygonEdges.Count == 3)
-                        DrawPolygon();
-                }
+
+            } else {
+                // Se todas arestas determinadas pelo usuário
+                // foram desenhadas, desenhar poligono
+                if ((InputVertice.Text != null || InputVertice.Text !="")
+                     && m_PointList.Count == int.Parse(InputVertice.Text))
+                    DrawPolygon();                
             }
                 
         }
 
         private void DrawPolygon()
         {
+            m_Polygon = new MyPolygon();
 
+            // Lingando arestas
+            m_Polygon.createPolygonByListOfEdges(m_PointList);
+            // Calculando todos os pontos
+            List<MyPoint> p_ListOfPoints = m_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true);
+
+            DrawListOfPoints(p_ListOfPoints);
         }
 
         /* Método para desenhar uma circunferência a partir de 
          * dois pontos desenhados no canvas
          * @param MyPoint p_Point1, MyPoint p_Point2
          */
-        private void DrawLine(MyPoint p_Point1, MyPoint p_Point2)
+        private void DrawLine()
         {
-            MyLine v_Line = new MyLine(p_Point1, p_Point2);
-
-
+            
             List<MyPoint> v_PointsFromLine;
 
             if (RadioButtonBres.IsChecked == true)
-                v_PointsFromLine = v_Line.BresenhamAlgorithm();// Definindo pontos a serem desenhados
+                v_PointsFromLine = m_Line.BresenhamAlgorithm();// Definindo pontos a serem desenhados
                                                                // a partir do algoritmo de Bresenham 
             else
-                v_PointsFromLine = v_Line.DDAAlgorithm();// Definindo pontos a serem desenhados
+                v_PointsFromLine = m_Line.DDAAlgorithm();// Definindo pontos a serem desenhados
                                                          // a partir do algoritmo DDA
             DrawListOfPoints(v_PointsFromLine);
 
         }
 
-
         /* Método para desenhar uma reta a partir de 
          * dois pontos desenhados no canvas
          * @param MyPoint p_Point1, MyPoint p_Point2
          */
-        private void DrawCirc(MyPoint p_Point1, MyPoint p_Point2)
+        private void DrawCirc()
         {
-            int v_Radius = (int)Math.Round(MyPoint.GetDistanceBetweenTwoPoint(p_Point1, p_Point2));
-            MyCircumference m_Circumference = new MyCircumference(p_Point1, v_Radius);         
-
-            DrawListOfPoints(m_Circumference.BresenhamAlgorithm());
+            DrawListOfPoints(m_Circ.BresenhamAlgorithm());
         }
 
+        /* Método para desenhar lista de pontos de uma figura
+         * @param List<MyPoint> p_PointsList
+         */
         public void DrawListOfPoints(List<MyPoint> p_PointsList)
         {
+            // Limpando pontos de referência
+            Canvas.Children.Clear();
+            m_HasDrawing = true;
+
             foreach (MyPoint v_Point in p_PointsList)
             {
                 // Desenhar pixel referente a pontos calculados
@@ -153,6 +162,7 @@ namespace AlgorithmsImplementation1
          */
         private void DrawPixelByPoint(MyPoint p_Point)
         {
+
             // Definindo cor do pixel
             Pixel v_Pixel = new Pixel(this.m_SelectedColor);
 
@@ -165,28 +175,96 @@ namespace AlgorithmsImplementation1
             Canvas.Children.Add(v_Pixel.m_PixelValue);
         }
 
+        /********** Métodos de Transformação de pontos **********/
+
+        /* OnClick botão de aplicar transformação
+         * @param object sender, EventArgs e
+         */
+        private void ApplyTranformation(object sender, EventArgs e)
+        {
+            if (RadioButtonTransl.IsChecked == true)
+                ApplyTranslation();
+
+        }
+
+        /* M[etodo para aplicar translação no 
+         * objeto desenhado na tela
+         */
+        private void ApplyTranslation()
+        {
+            // Limpar tela
+            Canvas.Children.Clear();
+
+            
+            int v_XVector = int.Parse(m_XInput.Text);
+
+            // Invertendo coordenada de y, pois o eixo cresce 
+            // de maneira invertida no canvas por ser
+            // posição de uma matriz
+            int v_YVector = int.Parse(m_YInput.Text) * -1;
+
+            // Aplicar transformação em um ponto
+            if (m_PointList.Count == 1)
+            {
+                m_PointList[0].TranslateSum(v_XVector, v_YVector);
+                DrawPixelByPoint(m_PointList[0]);
+            } else if (m_Line != null) // Aplicar transformação em uma reta
+            {
+                m_Line.Translation(v_XVector, v_YVector);
+                DrawLine();
+            } else if(m_Polygon != null) // Aplicar transformação em um poligono
+            {
+                m_Polygon.Translation(v_XVector, v_YVector);
+                DrawPolygon();
+            } else if (m_Circ != null) // Aplicar transformação em uma circunferência
+            {
+                m_Circ.Translation(v_XVector, v_YVector);
+                DrawCirc();
+            }
+
+        }
+
+
+        /********** Métodos de eventos da tela **********/
+
         /* Método para selecionar cor a partir de alterações da seleção do componente
          * de colorPicker
          * @param object sender, RoutedPropertyChangedEventArgs<Color?> e
          */
-        public void SelectColor(object sender, RoutedPropertyChangedEventArgs<Color?> e)
+        private void SelectColor(object sender, RoutedPropertyChangedEventArgs<Color?> e)
         {
             m_SelectedColor = (Color) e.NewValue;
         }
 
+        /* Método para verificar se texto  é numerico
+         * @param string text
+         */
         private static bool IsTextAllowed(string text)
         {
             return _regex.IsMatch(text);
         }
 
+        /* Método para verificar se novo caracter digitado no input
+         * é numerico
+         * @param object sender, TextCompositionEventArgs e
+         */
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
             e.Handled = IsTextAllowed(e.Text);
         }
 
+        /* Método para limpar tela */
         private void RemoveItensFromCanvas(object sender, EventArgs e)
         {
             Canvas.Children.Clear();
+            // Canvas não possui mais desenhos
+            m_HasDrawing = false;
+
+            // Limpar atributos da tela
+            m_PointList = new List<MyPoint> ();
+            m_Line = null;
+            m_Polygon =  null;
+            m_Circ = null;
         }
 
     }

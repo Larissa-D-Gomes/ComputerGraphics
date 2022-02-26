@@ -6,12 +6,19 @@ using System.Threading.Tasks;
 
 namespace AlgorithmsImplementation1.Model
 {
-    internal class MyCircumference
+    public class MyCircumference
     {
         MyPoint m_Center { get; set; }
         int m_Radius { get; set; }
 
-        // Constructor
+        // Construtor vazio
+        public MyCircumference()
+        {
+            m_Center = null;
+            m_Radius = 0;
+        }
+
+        // Construtor
         public MyCircumference(MyPoint p_Center, int p_Radius)
         {
             m_Center = p_Center;
@@ -82,6 +89,16 @@ namespace AlgorithmsImplementation1.Model
             }
 
             return v_Points;
+        }
+
+        /* Método para aplicar tranlação na circunferência
+         * @param int p_X, int p_Y -> coordenadas do vetor de
+         *                            translação
+         */
+        public void Translation(int p_VectorX, int p_VectorY)
+        {
+            // Aplicando no centro da circunferência
+            m_Center.TranslateSum(p_VectorX, p_VectorY);
         }
     }
 }

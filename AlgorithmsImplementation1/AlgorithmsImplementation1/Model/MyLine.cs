@@ -66,7 +66,7 @@ namespace AlgorithmsImplementation1.Model
             }
 
             return v_LinePoints;
-        } 
+        }
 
 
         public List<MyPoint> BresenhamAlgorithm()
@@ -109,7 +109,7 @@ namespace AlgorithmsImplementation1.Model
             v_LinePoints.Add(new MyPoint(v_InitX, v_InitY));
 
             // Calculando pontos no Caso 1 
-            if(v_DeltaX > v_DeltaY)
+            if (v_DeltaX > v_DeltaY)
             {
                 // Variável para decidir de Y será incrementado ou não
                 // Cálculo de P0
@@ -133,7 +133,7 @@ namespace AlgorithmsImplementation1.Model
                         v_InitY += v_IncrY;
                         // Calculando P
                         v_P += v_Const2;
-                    }                        
+                    }
                     else
                     {
                         // Calculando P
@@ -181,5 +181,16 @@ namespace AlgorithmsImplementation1.Model
             return v_LinePoints;
         }
 
+        /* Método para aplicar tranlação na reta
+         * @param int p_X, int p_Y -> coordenadas do vetor de
+         *                            translação
+         */
+        public void Translation(int p_VectorX, int p_VectorY)
+        {
+            // Aplicando no ponto inicial
+            m_Point1.TranslateSum(p_VectorX, p_VectorY);
+            // Aplicando no ponto final
+            m_Point2.TranslateSum(p_VectorX, p_VectorY);
+        }
     }
 }
