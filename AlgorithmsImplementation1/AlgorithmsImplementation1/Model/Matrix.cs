@@ -17,16 +17,16 @@ namespace AlgorithmsImplementation1.Model
             // Criando Matriz resultado
             Matrix v_Result = new Matrix(m_Matrix1.m_NumRow, m_Matrix2.m_NumColumn);
 
-            for (int i = 0; i < v_Result.m_NumColumn; i++)
+            for (int i = 0; i < v_Result.m_NumRow; i++)
             {
-                for (int j = 0; j < v_Result.m_NumRow; j++)
+                for (int j = 0; j < v_Result.m_NumColumn; j++)
                 {
                     // Somatório da multiplicação de elementos da matriz 1 e 2
-                    int v_Sum = 0;
+                    double v_Sum = 0;
 
                     for (int k = 0; k < m_Matrix1.m_NumColumn; k++)
                     {
-                        v_Sum += m_Matrix1.getValuePosition(i, k) * m_Matrix1.getValuePosition(k, j);
+                        v_Sum += m_Matrix1.getValuePosition(i, k) * m_Matrix2.getValuePosition(k, j);
                     }
                     // Setando valor do somatório das multiplicações
                     // na posiçãoo i, j
@@ -38,7 +38,7 @@ namespace AlgorithmsImplementation1.Model
         }
 
         // Atributos
-        public int[,] m_Matrix { get; }
+        public double[,] m_Matrix { get; }
         public int m_NumRow { get; set; }
         public int m_NumColumn { get; set; }
 
@@ -54,13 +54,13 @@ namespace AlgorithmsImplementation1.Model
             this.m_NumColumn = p_NumColumn;
             
             // Alocando Matrix
-            this.m_Matrix = new int[this.m_NumRow, this.m_NumColumn];
+            this.m_Matrix = new double[this.m_NumRow, this.m_NumColumn];
         }
 
         /* Método para setar valor em uma posição da matriz
          * @param int p_Row, int p_Column, int p_Value
          */
-        public void setValuePosition(int p_Row, int p_Column, int p_Value)
+        public void setValuePosition(int p_Row, int p_Column, double p_Value)
         {
             this.m_Matrix[p_Row, p_Column] = p_Value;
         }
@@ -68,7 +68,7 @@ namespace AlgorithmsImplementation1.Model
         /* Método para retornar valor em uma posição da matriz
          * @param int p_Row, int p_Column
          */
-        public int getValuePosition(int p_Row, int p_Column)
+        public double getValuePosition(int p_Row, int p_Column)
         {
             return this.m_Matrix[p_Row, p_Column];
         }

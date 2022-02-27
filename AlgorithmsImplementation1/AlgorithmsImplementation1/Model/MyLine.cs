@@ -32,8 +32,8 @@ namespace AlgorithmsImplementation1.Model
             List<MyPoint> v_LinePoints = new List<MyPoint>();
 
             // Definindo Delta x e y da reta
-            int v_DeltaX = this.m_Point2.getX() - this.m_Point1.getX();
-            int v_DeltaY = this.m_Point2.getY()- this.m_Point1.getY();
+            int v_DeltaX = (int)Math.Round(this.m_Point2.getX() - this.m_Point1.getX());
+            int v_DeltaY = (int)Math.Round(this.m_Point2.getY() - this.m_Point1.getY());
 
             // Definindo quantidade de passos do algoritmo a partir
             // do maior módulo delta de x ou y
@@ -42,12 +42,12 @@ namespace AlgorithmsImplementation1.Model
 
             // Definindo incremento que será feito ao x e y
             // de cada coordenada calculado em cada passo 
-            double v_IncrX = (double) v_DeltaX / (double) v_Steps;
-            double v_IncrY = (double) v_DeltaY / (double) v_Steps;
+            double v_IncrX = (double)v_DeltaX / (double)v_Steps;
+            double v_IncrY = (double)v_DeltaY / (double)v_Steps;
 
             // X e Y do ponto anterior 
-            double v_InitX = (double) this.m_Point1.getX();
-            double v_InitY = (double) this.m_Point1.getY();
+            double v_InitX = (double)this.m_Point1.getX();
+            double v_InitY = (double)this.m_Point1.getY();
 
             v_LinePoints.Add(new MyPoint((int)Math.Round(v_InitX),
                                              (int)Math.Round(v_InitY)));
@@ -61,7 +61,7 @@ namespace AlgorithmsImplementation1.Model
 
                 // Adicionando novo ponto calculado, com valores de
                 // x e y arredondados
-                v_LinePoints.Add(new MyPoint((int)Math.Round(v_InitX), 
+                v_LinePoints.Add(new MyPoint((int)Math.Round(v_InitX),
                                              (int)Math.Round(v_InitY)));
             }
 
@@ -74,8 +74,8 @@ namespace AlgorithmsImplementation1.Model
             List<MyPoint> v_LinePoints = new List<MyPoint>();
 
             // Definindo Delta x e y da reta
-            int v_DeltaX = this.m_Point2.getX() - this.m_Point1.getX();
-            int v_DeltaY = this.m_Point2.getY() - this.m_Point1.getY();
+            int v_DeltaX = this.m_Point2.getIntX() - this.m_Point1.getIntX();
+            int v_DeltaY = this.m_Point2.getIntY() - this.m_Point1.getIntY();
 
             // Definindo incremento de X
             int v_IncrX;
@@ -102,8 +102,8 @@ namespace AlgorithmsImplementation1.Model
                 v_IncrY = -1;
             }
 
-            int v_InitX = this.m_Point1.getX();
-            int v_InitY = this.m_Point1.getY();
+            int v_InitX = this.m_Point1.getIntX();
+            int v_InitY = this.m_Point1.getIntY();
 
             // Adicionando ponto à reta
             v_LinePoints.Add(new MyPoint(v_InitX, v_InitY));
@@ -182,15 +182,88 @@ namespace AlgorithmsImplementation1.Model
         }
 
         /* Método para aplicar tranlação na reta
-         * @param int p_X, int p_Y -> coordenadas do vetor de
+         * @param double p_X, double p_Y -> coordenadas do vetor de
          *                            translação
          */
-        public void Translation(int p_VectorX, int p_VectorY)
+        public void Translation(double p_VectorX, double p_VectorY)
         {
             // Aplicando no ponto inicial
             m_Point1.TranslateSum(p_VectorX, p_VectorY);
             // Aplicando no ponto final
             m_Point2.TranslateSum(p_VectorX, p_VectorY);
+        }
+
+        /* Método para aplicar escala na reta. Ponto de referêcia
+         * será o ponto inicial (Primeiro desenhado).
+         * @param double p_X, double p_Y -> coordenadas do vetor de
+         *                                  escala
+         */
+        public void Scale(double p_VectorX, double p_VectorY)
+        {
+            Scale(p_VectorX, p_VectorY, m_Point1.getX(), m_Point1.getY());
+        }
+
+        /* Método para aplicar escala na reta conforme ponto de referêcia fixo
+         * @param double p_X, double p_Y -> coordenadas do vetor de
+         *                                  escala
+         */
+        public void Scale(double p_VectorX, double p_VectorY, double p_ReferenceX, double p_ReferenceY)
+        {
+
+            // Transladando pontos em relação a ponto de referencia
+            m_Point1.setX(m_Point1.getX() - p_ReferenceX);
+            m_Point1.setY(m_Point1.getY() - p_ReferenceY);
+            m_Point2.setX(m_Point2.getX() - p_ReferenceX);
+            m_Point2.setY(m_Point2.getY() - p_ReferenceY);
+
+            // Aplicando no ponto inicial
+            m_Point1.Scale(p_VectorX, p_VectorY);
+            // Aplicando no ponto final
+            m_Point2.Scale(p_VectorX, p_VectorY);
+
+            // Transladando pontos para coordenadas finais
+            m_Point1.setX(m_Point1.getX() + p_ReferenceX);
+            m_Point1.setY(m_Point1.getY() + p_ReferenceY);
+            m_Point2.setX(m_Point2.getX() + p_ReferenceX);
+            m_Point2.setY(m_Point2.getY() + p_ReferenceY);
+
+        }
+
+
+        /* Método para aplicar rotação na reta. Ponto de referêcia
+         * será o ponto inicial (Primeiro desenhado).
+         * @param double p_X, double p_Y -> coordenadas do vetor de
+         *                                  escala
+         */
+        public void Rotation(double p_Theta)
+        {
+            Rotation(p_Theta, m_Point1.getX(), m_Point1.getY());
+        }
+
+        /* Método para aplicar rotação na reta conforme ponto de referêcia fixo
+         * @param double double p_Theta, double p_ReferenceX, double p_ReferenceY
+         * -> coordenadas do vetor de escala
+         */
+        public void Rotation(double p_Theta, double p_ReferenceX, double p_ReferenceY)
+        {
+
+            // Transladando pontos em relação a ponto de referencia
+            m_Point1.setX(m_Point1.getX() - p_ReferenceX);
+            m_Point1.setY(m_Point1.getY() - p_ReferenceY);
+            m_Point2.setX(m_Point2.getX() - p_ReferenceX);
+            m_Point2.setY(m_Point2.getY() - p_ReferenceY);
+
+            // Aplicando no ponto inicial
+            m_Point1.Rotation(p_Theta);
+            // Aplicando no ponto final
+            m_Point2.Rotation(p_Theta);
+
+            // Transladando pontos para coordenadas finais
+            m_Point1.setX(m_Point1.getX() + p_ReferenceX);
+            m_Point1.setY(m_Point1.getY() + p_ReferenceY);
+            m_Point2.setX(m_Point2.getX() + p_ReferenceX);
+            m_Point2.setY(m_Point2.getY() + p_ReferenceY);
+
         }
     }
 }

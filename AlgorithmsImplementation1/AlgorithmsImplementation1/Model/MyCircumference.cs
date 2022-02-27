@@ -34,14 +34,14 @@ namespace AlgorithmsImplementation1.Model
         {
             List<MyPoint> v_Points = new List<MyPoint>();
 
-            v_Points.Add(new MyPoint(this.m_Center.getX() + p_X, this.m_Center.getY() + p_Y));
-            v_Points.Add(new MyPoint(this.m_Center.getX() - p_X, this.m_Center.getY() + p_Y));
-            v_Points.Add(new MyPoint(this.m_Center.getX() + p_X, this.m_Center.getY() - p_Y));
-            v_Points.Add(new MyPoint(this.m_Center.getX() - p_X, this.m_Center.getY() - p_Y));
-            v_Points.Add(new MyPoint(this.m_Center.getX() + p_Y, this.m_Center.getY() + p_X));
-            v_Points.Add(new MyPoint(this.m_Center.getX() - p_Y, this.m_Center.getY() + p_X));
-            v_Points.Add(new MyPoint(this.m_Center.getX() + p_Y, this.m_Center.getY() - p_X));
-            v_Points.Add(new MyPoint(this.m_Center.getX() - p_Y, this.m_Center.getY() - p_X));
+            v_Points.Add(new MyPoint(this.m_Center.getIntX() + p_X, this.m_Center.getIntY() + p_Y));
+            v_Points.Add(new MyPoint(this.m_Center.getIntX() - p_X, this.m_Center.getIntY() + p_Y));
+            v_Points.Add(new MyPoint(this.m_Center.getIntX() + p_X, this.m_Center.getIntY() - p_Y));
+            v_Points.Add(new MyPoint(this.m_Center.getIntX() - p_X, this.m_Center.getIntY() - p_Y));
+            v_Points.Add(new MyPoint(this.m_Center.getIntX() + p_Y, this.m_Center.getIntY() + p_X));
+            v_Points.Add(new MyPoint(this.m_Center.getIntX() - p_Y, this.m_Center.getIntY() + p_X));
+            v_Points.Add(new MyPoint(this.m_Center.getIntX() + p_Y, this.m_Center.getIntY() - p_X));
+            v_Points.Add(new MyPoint(this.m_Center.getIntX() - p_Y, this.m_Center.getIntY() - p_X));
 
             return v_Points;
         }
@@ -92,13 +92,23 @@ namespace AlgorithmsImplementation1.Model
         }
 
         /* Método para aplicar tranlação na circunferência
-         * @param int p_X, int p_Y -> coordenadas do vetor de
+         * @param double p_X, double p_Y -> coordenadas do vetor de
          *                            translação
          */
-        public void Translation(int p_VectorX, int p_VectorY)
+        public void Translation(double p_VectorX, double p_VectorY)
         {
             // Aplicando no centro da circunferência
             m_Center.TranslateSum(p_VectorX, p_VectorY);
+        }
+
+        /* Método para aplicar escala na circunferência -> centro fixo
+         * @param double p_X, double p_Y -> coordenadas do vetor de
+         *                            translação
+         */
+        public void Scale(double p_Vector)
+        {
+            // Aplicando escala no raio da circunferência
+            this.m_Radius = (int)Math.Round((double)this.m_Radius * p_Vector);
         }
     }
 }

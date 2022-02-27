@@ -63,15 +63,53 @@ namespace AlgorithmsImplementation1.Model
         }
 
         /* Método para aplicar tranlação no poligono
-         * @param int v_XVector, int v_YVector -> coordenadas do vetor de
+         * @param double v_XVector, double v_YVector -> coordenadas do vetor de
          *                            translação
          */
-        public void Translation(int p_XVector, int p_YVector)
+        public void Translation(double p_XVector, double p_YVector)
         {
             foreach (MyLine v_Line in m_PolygonLines)
             {
                 v_Line.Translation(p_XVector, p_YVector);
             }
         }
+
+        /* Método para aplicar escala no poligono. Ponto de referêcia
+         * será o ponto inicial (Primeiro desenhado).
+         * @param double p_X, double p_Y -> coordenadas do vetor de
+         *                                  escala
+         */
+        public void Scale(double p_VectorX, double p_VectorY)
+        {
+            double v_ReferenceX = this.m_PolygonLines[0].m_Point1.getX();
+            double v_ReferenceY = this.m_PolygonLines[0].m_Point1.getY();
+
+            foreach(MyLine v_Line in this.m_PolygonLines)
+            {
+                v_Line.Scale(p_VectorX, p_VectorY, v_ReferenceX, v_ReferenceY);
+            }
+        }
+
+
+        /* Método para aplicar rotação no poligono. Ponto de referêcia
+         * será o ponto inicial (Primeiro desenhado).
+         * @param double p_X, double p_Y -> coordenadas do vetor de
+         *                                  escala
+         */
+        public void Rotation(double v_Theta)
+        {
+            double v_ReferenceX = this.m_PolygonLines[0].m_Point1.getX();
+            double v_ReferenceY = this.m_PolygonLines[0].m_Point1.getY();
+
+            // Aplicando rotação para cada primeiro ponto de cada reta para
+            // evitar rotacionar o ponto duas vezes 
+            foreach (MyLine v_Line in this.m_PolygonLines)
+            {
+                v_Line.m_Point1.TranslateSum(-1 * v_ReferenceX, -1 * v_ReferenceY);
+                v_Line.m_Point1.Rotation(v_Theta);
+                v_Line.m_Point1.TranslateSum(v_ReferenceX, v_ReferenceY);
+            }
+        }
+
     }
 }

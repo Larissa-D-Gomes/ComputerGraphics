@@ -28,7 +28,7 @@ namespace AlgorithmsImplementation1
         public bool m_HasDrawing = false;
 
         // Verificação de input numerico
-        private static readonly Regex _regex = new Regex("[^0-9.-]+");
+        private static readonly Regex _regex = new Regex("[^0-9,-]+");
 
         public MainWindow()
         {
@@ -38,6 +38,9 @@ namespace AlgorithmsImplementation1
             m_SelectedColor = (Color)ColorConverter.ConvertFromString("#000000");
 
             m_PointList = new List<MyPoint>();
+
+            EventManager.RegisterClassHandler(typeof(RadioButton), RadioButton.ClickEvent, new RoutedEventHandler(ControlItens));
+
         }
 
         /********** Métodos de desenho no canvas **********/
@@ -167,9 +170,9 @@ namespace AlgorithmsImplementation1
             Pixel v_Pixel = new Pixel(this.m_SelectedColor);
 
             // Definindo posição X do pixel
-            Canvas.SetLeft(v_Pixel.m_PixelValue, p_Point.getX());
+            Canvas.SetLeft(v_Pixel.m_PixelValue, p_Point.getIntX());
             // Definindo posição Y do pixel
-            Canvas.SetTop(v_Pixel.m_PixelValue, p_Point.getY());
+            Canvas.SetTop(v_Pixel.m_PixelValue, p_Point.getIntY());
 
             // Desenhando pixel
             Canvas.Children.Add(v_Pixel.m_PixelValue);
@@ -184,10 +187,14 @@ namespace AlgorithmsImplementation1
         {
             if (RadioButtonTransl.IsChecked == true)
                 ApplyTranslation();
+            else if(RadioButtonScale.IsChecked == true)
+                ApplyScale();
+            else if(RadioButtonRot.IsChecked == true)
+                ApplyRotation();
 
         }
 
-        /* M[etodo para aplicar translação no 
+        /* Método para aplicar translação no 
          * objeto desenhado na tela
          */
         private void ApplyTranslation()
@@ -195,13 +202,13 @@ namespace AlgorithmsImplementation1
             // Limpar tela
             Canvas.Children.Clear();
 
-            
-            int v_XVector = int.Parse(m_XInput.Text);
+
+            double v_XVector = double.Parse(m_XInput.Text);
 
             // Invertendo coordenada de y, pois o eixo cresce 
             // de maneira invertida no canvas por ser
             // posição de uma matriz
-            int v_YVector = int.Parse(m_YInput.Text) * -1;
+            double v_YVector = double.Parse(m_YInput.Text) * -1;
 
             // Aplicar transformação em um ponto
             if (m_PointList.Count == 1)
@@ -224,7 +231,80 @@ namespace AlgorithmsImplementation1
 
         }
 
+        /* Método para aplicar escala no 
+         * objeto desenhado na tela
+         */
+        private void ApplyScale()
+        {
+            // Limpar tela
+            Canvas.Children.Clear();
 
+            double v_XVector = double.Parse(m_XInput.Text);
+
+            // Invertendo coordenada de y, pois o eixo cresce 
+            // de maneira invertida no canvas por ser
+            // posição de uma matriz
+            double v_YVector = double.Parse(m_YInput.Text);
+
+            // Aplicar transformação em um ponto
+            if (m_PointList.Count == 1)
+            {
+                m_PointList[0].Scale(v_XVector, v_YVector);
+                DrawPixelByPoint(m_PointList[0]);
+            }
+            else if (m_Line != null) // Aplicar transformação em uma reta
+            {
+                m_Line.Scale(v_XVector, v_YVector);
+                DrawLine();
+            }
+            else if (m_Polygon != null) // Aplicar transformação em um poligono
+            {
+                m_Polygon.Scale(v_XVector, v_YVector);
+                DrawPolygon();
+            }
+            else if (m_Circ != null) // Aplicar transformação em uma circunferência
+            {
+                m_Circ.Scale(v_YVector);
+                DrawCirc();
+            }
+
+        }
+
+        /* Método para aplicar rotação no 
+         * objeto desenhado na tela
+         */
+        private void ApplyRotation()
+        {
+            // Limpar tela
+            Canvas.Children.Clear();
+
+            // Conversão de graus para radianos
+            // Math -> funções de sen e cos calculam por radianos
+            double v_Theta = -1 * double.Parse(m_YInput.Text) * Math.PI / 180.0;
+
+            // Aplicar transformação em um ponto
+            if (m_PointList.Count == 1)
+            {
+                m_PointList[0].Rotation(v_Theta);
+                DrawPixelByPoint(m_PointList[0]);
+            }
+            else if (m_Line != null) // Aplicar transformação em uma reta
+            {
+                m_Line.Rotation(v_Theta);
+                DrawLine();
+            }
+            else if (m_Polygon != null) // Aplicar transformação em um poligono
+            {
+                m_Polygon.Rotation(v_Theta) ;
+                DrawPolygon();
+            }
+            else if (m_Circ != null) // Aplicar transformação em uma circunferência
+            {
+                //m_Circ.Scale(v_YVector);
+                DrawCirc();
+            }
+
+        }
         /********** Métodos de eventos da tela **********/
 
         /* Método para selecionar cor a partir de alterações da seleção do componente
@@ -265,6 +345,31 @@ namespace AlgorithmsImplementation1
             m_Line = null;
             m_Polygon =  null;
             m_Circ = null;
+        }
+
+        /* Método para controlar elementos mostrados na tela conforme radio buttons selecionados */
+        private void ControlItens(object sender, EventArgs e)
+        {
+            if (RadioButtonScale.IsChecked == true && RadioButtonCirc.IsChecked == true)
+            {
+                m_YText.Text = "R * ";
+                m_XText.Visibility = Visibility.Hidden;
+                m_XInput.Visibility = Visibility.Hidden;
+
+            }
+            else if (RadioButtonRot.IsChecked == true)
+            {
+                m_YText.Text = "θ: ";
+                m_XText.Visibility = Visibility.Hidden;
+                m_XInput.Visibility = Visibility.Hidden;
+
+            }
+            else
+            {
+                m_YText.Text = "Y: ";
+                m_XText.Visibility = Visibility.Visible;
+                m_XInput.Visibility = Visibility.Visible;
+            }
         }
 
     }
