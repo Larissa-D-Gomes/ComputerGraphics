@@ -11,6 +11,10 @@ namespace AlgorithmsImplementation1.Model
         MyPoint m_Center { get; set; }
         int m_Radius { get; set; }
 
+        // Ponto fixo rotação -> variável auxiliar
+        MyPoint m_FixedPointRotation { get; set; }
+        
+
         // Construtor vazio
         public MyCircumference()
         {
@@ -23,6 +27,9 @@ namespace AlgorithmsImplementation1.Model
         {
             m_Center = p_Center;
             m_Radius = p_Radius;
+            m_FixedPointRotation = new MyPoint();
+            this.DefineRotationFixedPoint();
+
         }
 
         /* Método para que retorna todos pontos simétricos 
@@ -99,6 +106,9 @@ namespace AlgorithmsImplementation1.Model
         {
             // Aplicando no centro da circunferência
             m_Center.TranslateSum(p_VectorX, p_VectorY);
+
+            // Redefinindo ponto fixo para tranformação de rotação
+            DefineRotationFixedPoint();
         }
 
         /* Método para aplicar escala na circunferência -> centro fixo
@@ -109,6 +119,42 @@ namespace AlgorithmsImplementation1.Model
         {
             // Aplicando escala no raio da circunferência
             this.m_Radius = (int)Math.Round((double)this.m_Radius * p_Vector);
+
+            // Redefinindo ponto fixo para tranformação de rotação
+            DefineRotationFixedPoint();
+        }
+
+        /* Método para aplicar rotação na circunferência -> em relação 
+         * ao ponto menor coordenada de y da circunferência original
+         * @param double p_X, double p_Y -> coordenadas do vetor de
+         *                            translação
+         */
+        public void Rotation(double p_Theta)
+        {
+            double v_TransX = m_FixedPointRotation.getX();
+            double v_TransY = m_FixedPointRotation.getY();
+            // Posicionado ponto com menor y na origem, ou seja
+            // centro com x = 0 e y = raio
+            this.m_Center.TranslateSum(v_TransX * -1, v_TransY * -1);
+
+            // Aplicando rotação no centro
+            this.m_Center.Rotation(p_Theta);
+            // Desfazendo translação
+            this.m_Center.TranslateSum(v_TransX, v_TransY);
+
+        }
+
+
+        /* Método para setar ponto com menor Y da circunferência
+         * como ponto fixo para rotação
+         */
+        public void DefineRotationFixedPoint()
+        {
+            // Setando ponto fixo auxiliar para rotação
+            // da circunferência. O ponto será o ponto com
+            // menor y da circunferência original
+            m_FixedPointRotation.setX(m_Center.getX());
+            m_FixedPointRotation.setY(m_Center.getY() + m_Radius);
         }
     }
 }

@@ -26,10 +26,10 @@ namespace AlgorithmsImplementation1.Model
         // Construtor vazio
         public MyPoint()
         {
-            
+            m_Point = new Matrix(2, 1);
         }
 
-        // Contrutor 
+        // Construtor 
         public MyPoint(int p_X, int p_Y)
         {
             m_Point = new Matrix(2, 1); 
@@ -129,5 +129,32 @@ namespace AlgorithmsImplementation1.Model
             this.m_Point = Matrix.MultiplyMatrix(v_MatrixRotation, this.m_Point);
         }
 
+        public void Reflection(bool p_ApplyX, bool p_ApplyY, double p_MiddleXCanvas, double p_MiddleYCanvas)
+        {
+            // Instanciando matriz de fatores da escala
+            Matrix v_MatrixReflection = new Matrix(2, 2);
+
+            // Setando identidade
+            v_MatrixReflection.SetIdentity();
+
+            // Aplicar reflexão em relação ao eixo x
+            if (p_ApplyX)
+                // Posição 0,0 = x do vetor de escala
+                v_MatrixReflection.setValuePosition(0, 0, -1);
+            else
+                p_MiddleXCanvas = 0;
+
+            // Aplicar reflexão em relação ao eixo x
+            if (p_ApplyY)
+                // Posição 1,1 = y do vetor de escala
+                v_MatrixReflection.setValuePosition(1, 1, -1);
+            else
+                p_MiddleYCanvas = 0;
+
+            // Ponto = Matriz Reflexão * Matriz Ponto
+            this.m_Point = Matrix.MultiplyMatrix(v_MatrixReflection, this.m_Point);
+            // Rotacionar em relação aos eixos do meio do canvas
+            TranslateSum(p_MiddleXCanvas, p_MiddleYCanvas);
+        }
     }
 }

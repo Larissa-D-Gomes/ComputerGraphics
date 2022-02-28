@@ -40,6 +40,7 @@ namespace AlgorithmsImplementation1
             m_PointList = new List<MyPoint>();
 
             EventManager.RegisterClassHandler(typeof(RadioButton), RadioButton.ClickEvent, new RoutedEventHandler(ControlItens));
+            EventManager.RegisterClassHandler(typeof(CheckBox), CheckBox.ClickEvent, new RoutedEventHandler(ControlItens));
 
         }
 
@@ -191,6 +192,8 @@ namespace AlgorithmsImplementation1
                 ApplyScale();
             else if(RadioButtonRot.IsChecked == true)
                 ApplyRotation();
+            else
+                ApplyReflection();
 
         }
 
@@ -295,16 +298,52 @@ namespace AlgorithmsImplementation1
             }
             else if (m_Polygon != null) // Aplicar transformação em um poligono
             {
-                m_Polygon.Rotation(v_Theta) ;
+                m_Polygon.Rotation(v_Theta);
                 DrawPolygon();
             }
             else if (m_Circ != null) // Aplicar transformação em uma circunferência
             {
-                //m_Circ.Scale(v_YVector);
+                m_Circ.Rotation(v_Theta);
                 DrawCirc();
             }
 
         }
+
+        /* Método para aplicar reflexão no 
+         * objeto desenhado na tela
+         */
+        private void ApplyReflection()
+        {
+            // Limpar tela
+            Canvas.Children.Clear();
+
+            double v_XCanvas = (Canvas.ActualWidth) ;
+            double v_YCanvas = (Canvas.ActualHeight);
+
+            // Aplicar transformação em um ponto
+            if (m_PointList.Count == 1)
+            {
+                m_PointList[0].Reflection(m_XCheck.IsChecked == true, m_YCheck.IsChecked == true, v_XCanvas, v_YCanvas);
+                DrawPixelByPoint(m_PointList[0]);
+            }
+            else if (m_Line != null) // Aplicar transformação em uma reta
+            {
+               // m_Line.Rotation(v_Theta);
+                DrawLine();
+            }
+            else if (m_Polygon != null) // Aplicar transformação em um poligono
+            {
+                //m_Polygon.Rotation(v_Theta);
+                DrawPolygon();
+            }
+            else if (m_Circ != null) // Aplicar transformação em uma circunferência
+            {
+                //m_Circ.Rotation(v_Theta);
+                DrawCirc();
+            }
+
+        }
+
         /********** Métodos de eventos da tela **********/
 
         /* Método para selecionar cor a partir de alterações da seleção do componente
@@ -350,9 +389,14 @@ namespace AlgorithmsImplementation1
         /* Método para controlar elementos mostrados na tela conforme radio buttons selecionados */
         private void ControlItens(object sender, EventArgs e)
         {
+            m_XCheck.Visibility = Visibility.Hidden;
+            m_YCheck.Visibility = Visibility.Hidden;
+
             if (RadioButtonScale.IsChecked == true && RadioButtonCirc.IsChecked == true)
             {
                 m_YText.Text = "R * ";
+                m_YText.Visibility = Visibility.Visible;
+                m_YInput.Visibility = Visibility.Visible;
                 m_XText.Visibility = Visibility.Hidden;
                 m_XInput.Visibility = Visibility.Hidden;
 
@@ -360,15 +404,30 @@ namespace AlgorithmsImplementation1
             else if (RadioButtonRot.IsChecked == true)
             {
                 m_YText.Text = "θ: ";
+                m_YText.Visibility = Visibility.Visible;
+                m_YInput.Visibility = Visibility.Visible;
                 m_XText.Visibility = Visibility.Hidden;
                 m_XInput.Visibility = Visibility.Hidden;
 
+            }
+            else if (RadioButtonRefl.IsChecked == true)
+            {
+                m_XCheck.Visibility = Visibility.Visible;
+                m_YCheck.Visibility = Visibility.Visible;
+
+                m_XText.Visibility = Visibility.Visible;
+                m_XInput.Visibility = Visibility.Hidden;
+                m_YText.Visibility = Visibility.Visible;
+                m_YInput.Visibility = Visibility.Hidden;
             }
             else
             {
                 m_YText.Text = "Y: ";
                 m_XText.Visibility = Visibility.Visible;
+                m_YInput.Visibility = Visibility.Visible;
                 m_XInput.Visibility = Visibility.Visible;
+                m_XCheck.Visibility = Visibility.Hidden;
+                m_YCheck.Visibility = Visibility.Hidden;
             }
         }
 
