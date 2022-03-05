@@ -111,5 +111,19 @@ namespace AlgorithmsImplementation1.Model
             }
         }
 
+        /* Método para aplicar reflexão na reta, em relação aos eixos do meio do canvas.
+        * O eixo Y será definido pela metade do width do canvas e X pela metade do heigth
+        * @param bool p_ApplyX, bool p_ApplyY, double p_MiddleXCanvas, double p_MiddleYCanvas
+        */
+        public void Reflection(bool p_ApplyX, bool p_ApplyY, double p_MiddleXCanvas, double p_MiddleYCanvas)
+        {
+            foreach (MyLine v_Line in this.m_PolygonLines)
+            {
+                // Aplicar reflexão apenas no primeiro ponto para evitar que a
+                // operação seja feita duas vezes no mesmo ponto
+                v_Line.m_Point1.Reflection(p_ApplyX, p_ApplyY, p_MiddleXCanvas, p_MiddleYCanvas);
+            }
+        }
+
     }
 }

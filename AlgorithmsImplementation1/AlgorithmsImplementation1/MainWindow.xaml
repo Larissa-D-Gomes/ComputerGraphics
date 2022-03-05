@@ -18,7 +18,7 @@
                 <xctk:ColorCanvas x:Name="m_ColorPicker"  SelectedColorChanged="SelectColor" HorizontalAlignment="Left" Height="94" VerticalAlignment="Top" Width="231" Margin="-6,-6,0,0"/>
 
                 <Button Content="Limpar Tela" Click="RemoveItensFromCanvas" Background="#FFEE9090" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Margin="2,91,0,0" BorderThickness="1,1,1,1" Height="21" BorderBrush="#FF7D0000"/>
-                <Button Content="Definir Recorte" Click="RemoveItensFromCanvas" Background="#FFE9EE90" HorizontalAlignment="Left" VerticalAlignment="Top" Width="96" Margin="81,91,0,0" BorderThickness="1,1,1,1" Height="21" BorderBrush="#FFBAAD09"/>
+                <Button Content="Definir Recorte" Click="DefineClippling" Background="#FFE9EE90" HorizontalAlignment="Left" VerticalAlignment="Top" Width="96" Margin="81,91,0,0" BorderThickness="1,1,1,1" Height="21" BorderBrush="#FFBAAD09"/>
 
                 <TextBlock FontSize="14" Text="Desenhar:" Width="258" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.438,5.077" Margin="239,-1,0,0"/>
                 <RadioButton Content="Reta" GroupName="Draw" x:Name="RadioButtonLine" IsChecked="True" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="239,22,0,0"/>

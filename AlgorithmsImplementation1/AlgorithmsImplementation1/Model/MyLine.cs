@@ -72,6 +72,10 @@ namespace AlgorithmsImplementation1.Model
         public List<MyPoint> BresenhamAlgorithm()
         {
             List<MyPoint> v_LinePoints = new List<MyPoint>();
+            this.m_Point1.setX(2);
+            this.m_Point1.setY(0);
+            this.m_Point2.setX(6);
+            this.m_Point2.setY(0);
 
             // Definindo Delta x e y da reta
             int v_DeltaX = this.m_Point2.getIntX() - this.m_Point1.getIntX();
@@ -265,5 +269,18 @@ namespace AlgorithmsImplementation1.Model
             m_Point2.setY(m_Point2.getY() + p_ReferenceY);
 
         }
+
+        /* Método para aplicar reflexão na reta, em relação aos eixos do meio do canvas.
+         * O eixo Y será definido pela metade do width do canvas e X pela metade do heigth
+         * @param bool p_ApplyX, bool p_ApplyY, double p_MiddleXCanvas, double p_MiddleYCanvas
+         */
+        public void Reflection(bool p_ApplyX, bool p_ApplyY, double p_MiddleXCanvas, double p_MiddleYCanvas)
+        {
+            // Aplicando no ponto inicial
+            m_Point1.Reflection(p_ApplyX, p_ApplyY, p_MiddleXCanvas, p_MiddleYCanvas);
+            // Aplicando no ponto final
+            m_Point2.Reflection(p_ApplyX, p_ApplyY, p_MiddleXCanvas, p_MiddleYCanvas);
+        }
+
     }
 }

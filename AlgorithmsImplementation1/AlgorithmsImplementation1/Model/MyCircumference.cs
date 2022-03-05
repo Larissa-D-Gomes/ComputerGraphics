@@ -144,6 +144,18 @@ namespace AlgorithmsImplementation1.Model
 
         }
 
+        /* Método para aplicar reflexão na circunferência, em relação aos eixos do meio do canvas.
+         * O eixo Y será definido pela metade do width do canvas e X pela metade do heigth
+         * @param bool p_ApplyX, bool p_ApplyY, double p_MiddleXCanvas, double p_MiddleYCanvas
+         */
+        public void Reflection(bool p_ApplyX, bool p_ApplyY, double p_MiddleXCanvas, double p_MiddleYCanvas)
+        {
+            // Aplicando escala no raio da circunferência
+            m_Center.Reflection(p_ApplyX, p_ApplyY, p_MiddleXCanvas, p_MiddleYCanvas);
+
+            // Redefinindo ponto fixo para tranformação de rotação
+            DefineRotationFixedPoint();
+        }
 
         /* Método para setar ponto com menor Y da circunferência
          * como ponto fixo para rotação

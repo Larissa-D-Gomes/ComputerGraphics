@@ -111,7 +111,7 @@ namespace AlgorithmsImplementation1.Model
         public void Rotation(double p_Theta)
         {
             // Instanciando matriz de fatores da escala
-            Matrix v_MatrixRotation = new Matrix(2, 2); 
+            Matrix v_MatrixRotation = new Matrix(2, 2);
 
             // Posição 0,0 = cos(θ) do vetor de escala
             v_MatrixRotation.setValuePosition(0, 0, Math.Cos(p_Theta));
@@ -129,6 +129,10 @@ namespace AlgorithmsImplementation1.Model
             this.m_Point = Matrix.MultiplyMatrix(v_MatrixRotation, this.m_Point);
         }
 
+        /* Método para aplicar reflexão no ponto, em relação aos eixos do meio do canvas.
+         * O eixo Y será definido pela metade do width do canvas e X pela metade do heigth
+         * @param bool p_ApplyX, bool p_ApplyY, double p_MiddleXCanvas, double p_MiddleYCanvas
+         */
         public void Reflection(bool p_ApplyX, bool p_ApplyY, double p_MiddleXCanvas, double p_MiddleYCanvas)
         {
             // Instanciando matriz de fatores da escala

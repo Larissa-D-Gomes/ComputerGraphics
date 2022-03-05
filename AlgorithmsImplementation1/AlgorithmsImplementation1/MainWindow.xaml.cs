@@ -27,6 +27,14 @@ namespace AlgorithmsImplementation1
         // Variável para determinar se canvas possuem algum desenho 
         public bool m_HasDrawing = false;
 
+        // Flag que usuário está definindo área de clipping
+        public bool m_IsDefiningClipping = false;
+
+        // Variáveis para marcar as coordenadas x e y
+        // mínimas e máximas da área de recorte
+        public MyPoint m_MaxCoordClipping = null;
+        public MyPoint m_MinCoordClipping = null;
+
         // Verificação de input numerico
         private static readonly Regex _regex = new Regex("[^0-9,-]+");
 
@@ -52,9 +60,10 @@ namespace AlgorithmsImplementation1
          */
         private void DrawPoint(object sender, MouseButtonEventArgs e)
         {
-            // Desenhar nova figura apenas quando não houver
-            // outra já desenhada
-            if (!m_HasDrawing)
+            if (m_IsDefiningClipping)
+            {
+                setClipping(e);
+            } else if (!m_HasDrawing) // Desenhar nova figura apenas quando não houver outra já desenhada
             {
                 // Criando ponto a partir das coordenadas do clique
                 MyPoint v_NewPoint = new MyPoint((int)e.GetPosition(Canvas).X, (int)e.GetPosition(Canvas).Y);
@@ -64,6 +73,69 @@ namespace AlgorithmsImplementation1
                 setPoint(v_NewPoint);
             }
 
+        }
+
+        /* Método para setar coordenadas mínimas e máximas da
+         * área de recorte
+         * @param MouseButtonEventArgs e
+         */
+        private void setClipping(MouseButtonEventArgs e)
+        {
+            if (m_MaxCoordClipping == null)
+            {
+                // Setando primeiro ponto do recorte
+                m_MaxCoordClipping = new MyPoint((int)e.GetPosition(Canvas).X, (int)e.GetPosition(Canvas).Y);
+            }
+            else
+            {
+                // Setando segundo ponto do recorte
+                m_MinCoordClipping = new MyPoint();
+
+                // Se x do primeiro ponto < x do segundo, trocar x de m_MaxCoordClipping
+                if (m_MaxCoordClipping.getIntX() < (int)e.GetPosition(Canvas).X)
+                {
+                    m_MinCoordClipping.setX(m_MaxCoordClipping.getIntX());
+                    m_MaxCoordClipping.setX((int)e.GetPosition(Canvas).X);
+                }
+                else // Se não, apenas setar x de m_MinCoordClipping
+                {
+                    m_MinCoordClipping.setX((int)e.GetPosition(Canvas).X);
+                }
+
+                // Se y do primeiro ponto < y do segundo, trocar y de m_MaxCoordClipping
+                if (m_MaxCoordClipping.getIntY() < (int)e.GetPosition(Canvas).Y)
+                {
+                    m_MinCoordClipping.setY(m_MaxCoordClipping.getIntY());
+                    m_MaxCoordClipping.setY((int)e.GetPosition(Canvas).Y);
+                }
+                else // Se não, apenas setar x de m_MinCoordClipping
+                {
+                    m_MinCoordClipping.setY((int)e.GetPosition(Canvas).Y);
+                }
+
+                drawClippingArea();
+                m_IsDefiningClipping = false;
+            }
+        }
+
+        /* Método para desenhar área de clippling */
+        private void drawClippingArea()
+        {
+            MyPolygon v_Polygon = new MyPolygon();
+
+            List<MyPoint> v_Points = new List<MyPoint>();
+            // Adicionando arestas do retângulo
+            v_Points.Add(new MyPoint(m_MaxCoordClipping.getIntX(), m_MaxCoordClipping.getIntY()));
+            v_Points.Add(new MyPoint(m_MaxCoordClipping.getIntX(), m_MinCoordClipping.getIntY()));
+            v_Points.Add(new MyPoint(m_MinCoordClipping.getIntX(), m_MinCoordClipping.getIntY()));
+            v_Points.Add(new MyPoint(m_MinCoordClipping.getIntX(), m_MaxCoordClipping.getIntY()));
+
+            // Lingando arestas
+            v_Polygon.createPolygonByListOfEdges(v_Points);
+            // Calculando todos os pontos
+            List<MyPoint> v_ListOfPoints = v_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true);
+
+            DrawListOfPoints(v_ListOfPoints);
         }
 
         /* Adicionar ponto a lista de pontos e 
@@ -112,9 +184,9 @@ namespace AlgorithmsImplementation1
             // Lingando arestas
             m_Polygon.createPolygonByListOfEdges(m_PointList);
             // Calculando todos os pontos
-            List<MyPoint> p_ListOfPoints = m_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true);
+            List<MyPoint> v_ListOfPoints = m_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true);
 
-            DrawListOfPoints(p_ListOfPoints);
+            DrawListOfPoints(v_ListOfPoints);
         }
 
         /* Método para desenhar uma circunferência a partir de 
@@ -225,7 +297,7 @@ namespace AlgorithmsImplementation1
             } else if(m_Polygon != null) // Aplicar transformação em um poligono
             {
                 m_Polygon.Translation(v_XVector, v_YVector);
-                DrawPolygon();
+                DrawListOfPoints(m_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true));
             } else if (m_Circ != null) // Aplicar transformação em uma circunferência
             {
                 m_Circ.Translation(v_XVector, v_YVector);
@@ -328,17 +400,17 @@ namespace AlgorithmsImplementation1
             }
             else if (m_Line != null) // Aplicar transformação em uma reta
             {
-               // m_Line.Rotation(v_Theta);
+                m_Line.Reflection(m_XCheck.IsChecked == true, m_YCheck.IsChecked == true, v_XCanvas, v_YCanvas);
                 DrawLine();
             }
             else if (m_Polygon != null) // Aplicar transformação em um poligono
             {
-                //m_Polygon.Rotation(v_Theta);
-                DrawPolygon();
+                m_Polygon.Reflection(m_XCheck.IsChecked == true, m_YCheck.IsChecked == true, v_XCanvas, v_YCanvas);
+                DrawListOfPoints(m_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true));
             }
             else if (m_Circ != null) // Aplicar transformação em uma circunferência
             {
-                //m_Circ.Rotation(v_Theta);
+                m_Circ.Reflection(m_XCheck.IsChecked == true, m_YCheck.IsChecked == true, v_XCanvas, v_YCanvas);
                 DrawCirc();
             }
 
@@ -372,6 +444,12 @@ namespace AlgorithmsImplementation1
             e.Handled = IsTextAllowed(e.Text);
         }
 
+        /* Método para clicks do usuário definirem área de recorte */
+        private void DefineClippling(object sender, EventArgs e)
+        {
+            m_IsDefiningClipping = true;
+        }
+
         /* Método para limpar tela */
         private void RemoveItensFromCanvas(object sender, EventArgs e)
         {
@@ -384,6 +462,8 @@ namespace AlgorithmsImplementation1
             m_Line = null;
             m_Polygon =  null;
             m_Circ = null;
+            m_MinCoordClipping = null;
+            m_MaxCoordClipping = null;
         }
 
         /* Método para controlar elementos mostrados na tela conforme radio buttons selecionados */
