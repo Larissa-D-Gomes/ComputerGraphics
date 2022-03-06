@@ -8,8 +8,8 @@ namespace AlgorithmsImplementation1.Model
 {
     public class MyCircumference
     {
-        MyPoint m_Center { get; set; }
-        int m_Radius { get; set; }
+        public MyPoint m_Center { get; set; }
+        public int m_Radius { get; set; }
 
         // Ponto fixo rotação -> variável auxiliar
         MyPoint m_FixedPointRotation { get; set; }

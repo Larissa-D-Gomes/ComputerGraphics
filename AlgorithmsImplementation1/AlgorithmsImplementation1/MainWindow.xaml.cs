@@ -14,14 +14,17 @@ namespace AlgorithmsImplementation1
     /// </summary>
     public partial class MainWindow : Window
     {        
-        // Lista pontos desenhados
-        public List<MyPoint> m_PointList;
+        // Lista pontos desenhados auxiliar para desenhos em estruturas
+        // de retas, poligons e circunferência
+        public List<MyPoint> m_PointListAux;
 
-        public MyLine m_Line;
+        public List<MyPoint> m_PointList = new List<MyPoint>();
 
-        public MyPolygon m_Polygon;
+        public List<MyLine> m_LineList = new List<MyLine>();
 
-        public MyCircumference m_Circ;
+        public List<MyPolygon> m_PolygonList = new List<MyPolygon>();
+
+        public List<MyCircumference> m_CircList = new List<MyCircumference>();
 
         public Color m_SelectedColor;
         // Variável para determinar se canvas possuem algum desenho 
@@ -29,6 +32,10 @@ namespace AlgorithmsImplementation1
 
         // Flag que usuário está definindo área de clipping
         public bool m_IsDefiningClipping = false;
+
+        // Flag existe uma área de clipping definida
+        public bool m_HasClipping = false;
+
 
         // Variáveis para marcar as coordenadas x e y
         // mínimas e máximas da área de recorte
@@ -45,7 +52,7 @@ namespace AlgorithmsImplementation1
             // Cor selecionada default -> preto
             m_SelectedColor = (Color)ColorConverter.ConvertFromString("#000000");
 
-            m_PointList = new List<MyPoint>();
+            m_PointListAux = new List<MyPoint>();
 
             EventManager.RegisterClassHandler(typeof(RadioButton), RadioButton.ClickEvent, new RoutedEventHandler(ControlItens));
             EventManager.RegisterClassHandler(typeof(CheckBox), CheckBox.ClickEvent, new RoutedEventHandler(ControlItens));
@@ -63,14 +70,21 @@ namespace AlgorithmsImplementation1
             if (m_IsDefiningClipping)
             {
                 setClipping(e);
-            } else if (!m_HasDrawing) // Desenhar nova figura apenas quando não houver outra já desenhada
+            } else 
             {
                 // Criando ponto a partir das coordenadas do clique
                 MyPoint v_NewPoint = new MyPoint((int)e.GetPosition(Canvas).X, (int)e.GetPosition(Canvas).Y);
                 // Desenhando pixel nas coordenadas do clique
                 DrawPixelByPoint(v_NewPoint);
 
-                setPoint(v_NewPoint);
+                if (RadioButtonPoint.IsChecked == false)
+                {
+                    setPoint(v_NewPoint);
+                }
+                else
+                {
+                    m_PointList.Add(v_NewPoint);
+                }
             }
 
         }
@@ -112,8 +126,63 @@ namespace AlgorithmsImplementation1
                 {
                     m_MinCoordClipping.setY((int)e.GetPosition(Canvas).Y);
                 }
-
+                m_HasClipping = true;
                 drawClippingArea();
+
+                // Definindo retas plotadas pelo recorte
+                foreach (MyLine p_Line in this.m_LineList)
+                {
+                    MyLine v_ClipplingLine = p_Line.CohenSutherland(m_MaxCoordClipping.getIntX(),
+                    m_MinCoordClipping.getIntX(), m_MaxCoordClipping.getIntY(), m_MinCoordClipping.getIntY());
+
+                    if (v_ClipplingLine != null)
+                    {
+                       DrawLine(v_ClipplingLine, false);
+                    }
+                    
+                }
+
+                // Definindo retas de poligonos plotadas pelo recorte
+                foreach (MyPolygon p_Polygon in m_PolygonList)
+                {
+                    List<MyLine> v_ClipplingLineList = p_Polygon.CohenSutherland(m_MaxCoordClipping.getIntX(),
+                    m_MinCoordClipping.getIntX(), m_MaxCoordClipping.getIntY(), m_MinCoordClipping.getIntY());
+
+                    foreach (MyLine v_Line in v_ClipplingLineList)
+                    {
+                        DrawLine(v_Line, false);
+                    }
+
+                }
+
+                // Definindo pontos dentro do recorte
+                foreach (MyPoint v_Point in m_PointList)
+                {
+                    if(v_Point.getIntX() >= m_MinCoordClipping.getIntX() &&
+                       v_Point.getIntX() <= m_MaxCoordClipping.getIntX() &&
+                       v_Point.getIntY() >= m_MinCoordClipping.getIntY() &&
+                       v_Point.getIntY() <= m_MaxCoordClipping.getIntY())
+                        DrawPixelByPoint(v_Point);
+
+                }
+
+                // Definindo pontos da circumferência dentro do recorte
+                // A análise erá feita ponto a ponto calculado pelo algoritmo
+                // de Bresenham
+                foreach (MyCircumference p_Circ in m_CircList)
+                {
+                    List<MyPoint> v_Points = p_Circ.BresenhamAlgorithm();
+                    foreach (MyPoint v_Point in v_Points)
+                    {
+                        if (v_Point.getIntX() >= m_MinCoordClipping.getIntX() &&
+                           v_Point.getIntX() <= m_MaxCoordClipping.getIntX() &&
+                           v_Point.getIntY() >= m_MinCoordClipping.getIntY() &&
+                           v_Point.getIntY() <= m_MaxCoordClipping.getIntY())
+                            DrawPixelByPoint(v_Point);
+
+                    }
+                }
+
                 m_IsDefiningClipping = false;
             }
         }
@@ -135,7 +204,7 @@ namespace AlgorithmsImplementation1
             // Calculando todos os pontos
             List<MyPoint> v_ListOfPoints = v_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true);
 
-            DrawListOfPoints(v_ListOfPoints);
+            DrawListOfPoints(v_ListOfPoints, true);
         }
 
         /* Adicionar ponto a lista de pontos e 
@@ -144,87 +213,108 @@ namespace AlgorithmsImplementation1
          */
         private void setPoint(MyPoint p_NewPoint)
         {
-            m_PointList.Add(p_NewPoint);
+            m_PointListAux.Add(p_NewPoint);
             if (RadioButtonLine.IsChecked == true)
             {
                 // Se dois pontos da reta já foram desenhados 
-                if (m_PointList.Count == 2)
+                if (m_PointListAux.Count == 2)
                 {
                     // Desenhar reta a partir dos pontos desenhados
-                    m_Line = new MyLine(m_PointList[0], m_PointList[1]);
-                    DrawLine();
+                    m_LineList.Add(new MyLine(m_PointListAux[0], m_PointListAux[1]));
+
+                    foreach (MyLine p_Line in m_LineList)
+                        DrawLine(p_Line, false);
+                    m_PointListAux = new List<MyPoint>();
                 }
             } else if (RadioButtonCirc.IsChecked == true)
             {
                 // Se dois pontos da circunferência já foram desenhados 
-                if (this.m_PointList.Count == 2)
+                if (this.m_PointListAux.Count == 2)
                 {
                     // Desenhar circunferência considerando o primeiro
                     // ponto desenhado com o centro, e o segundo como
                     // ponto tangente ao arco
-                    int v_Radius = (int)Math.Round(MyPoint.GetDistanceBetweenTwoPoint(m_PointList[0], m_PointList[1]));
-                    m_Circ = new MyCircumference(m_PointList[0], v_Radius);
-                    DrawCirc();
+                    int v_Radius = (int)Math.Round(MyPoint.GetDistanceBetweenTwoPoint(m_PointListAux[0], m_PointListAux[1]));
+
+                    MyCircumference v_NewCirc = new MyCircumference(m_PointListAux[0], v_Radius);
+                    m_CircList.Add(v_NewCirc);
+                    DrawCirc(v_NewCirc, true);
+                    m_PointListAux = new List<MyPoint>();
                 }
 
             } else {
                 // Se todas arestas determinadas pelo usuário
                 // foram desenhadas, desenhar poligono
-                if ((InputVertice.Text != null || InputVertice.Text !="")
-                     && m_PointList.Count == int.Parse(InputVertice.Text))
-                    DrawPolygon();                
+                if ((InputVertice.Text != null || InputVertice.Text != "")
+                     && m_PointListAux.Count == int.Parse(InputVertice.Text))
+                {
+                    MyPolygon v_NewPolygon = new MyPolygon();
+                    // Lingando arestas
+                    v_NewPolygon.createPolygonByListOfEdges(m_PointListAux);
+
+                    m_PolygonList.Add(v_NewPolygon);
+                    DrawPolygon(v_NewPolygon);
+                    m_PointListAux = new List<MyPoint>();
+                }
             }
-                
+
         }
 
-        private void DrawPolygon()
+        /* Método para desenhar poligono
+         * @param MyPolygon p_Polygon
+         */
+        private void DrawPolygon(MyPolygon p_Polygon)
         {
-            m_Polygon = new MyPolygon();
-
-            // Lingando arestas
-            m_Polygon.createPolygonByListOfEdges(m_PointList);
+            
             // Calculando todos os pontos
-            List<MyPoint> v_ListOfPoints = m_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true);
+            List<MyPoint> v_ListOfPoints = p_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true);
 
-            DrawListOfPoints(v_ListOfPoints);
+            DrawListOfPoints(v_ListOfPoints, false);
         }
 
         /* Método para desenhar uma circunferência a partir de 
          * dois pontos desenhados no canvas
-         * @param MyPoint p_Point1, MyPoint p_Point2
+         * @param MyLine p_Line, bool p_IsToCleanCavas
          */
-        private void DrawLine()
+        private void DrawLine(MyLine p_Line, bool p_IsToCleanCavas)
         {
             
             List<MyPoint> v_PointsFromLine;
 
             if (RadioButtonBres.IsChecked == true)
-                v_PointsFromLine = m_Line.BresenhamAlgorithm();// Definindo pontos a serem desenhados
+                v_PointsFromLine = p_Line.BresenhamAlgorithm();// Definindo pontos a serem desenhados
                                                                // a partir do algoritmo de Bresenham 
             else
-                v_PointsFromLine = m_Line.DDAAlgorithm();// Definindo pontos a serem desenhados
+                v_PointsFromLine = p_Line.DDAAlgorithm();// Definindo pontos a serem desenhados
                                                          // a partir do algoritmo DDA
-            DrawListOfPoints(v_PointsFromLine);
+            DrawListOfPoints(v_PointsFromLine, p_IsToCleanCavas);
 
         }
 
         /* Método para desenhar uma reta a partir de 
          * dois pontos desenhados no canvas
-         * @param MyPoint p_Point1, MyPoint p_Point2
+         * @param MyCircumference p_Circ, bool p_DeleteCenter
          */
-        private void DrawCirc()
+        private void DrawCirc(MyCircumference p_Circ, bool p_DeleteCenter)
         {
-            DrawListOfPoints(m_Circ.BresenhamAlgorithm());
+            // Apagando ponto de referência do centro
+            if (p_DeleteCenter)
+            {
+                UIElement v_Center = Canvas.Children[Canvas.Children.Count - 2];
+                Canvas.Children.Remove(v_Center);
+            }
+
+            DrawListOfPoints(p_Circ.BresenhamAlgorithm(), false);
         }
 
         /* Método para desenhar lista de pontos de uma figura
-         * @param List<MyPoint> p_PointsList
+         * @param List<MyPoint> p_PointsList, bool p_IsToCleanCavas
          */
-        public void DrawListOfPoints(List<MyPoint> p_PointsList)
+        public void DrawListOfPoints(List<MyPoint> p_PointsList, bool p_IsToCleanCavas)
         {
+            if(p_IsToCleanCavas)
             // Limpando pontos de referência
-            Canvas.Children.Clear();
-            m_HasDrawing = true;
+                Canvas.Children.Clear();
 
             foreach (MyPoint v_Point in p_PointsList)
             {
@@ -240,7 +330,7 @@ namespace AlgorithmsImplementation1
         {
 
             // Definindo cor do pixel
-            Pixel v_Pixel = new Pixel(this.m_SelectedColor);
+            Pixel v_Pixel = new Pixel(m_SelectedColor);
 
             // Definindo posição X do pixel
             Canvas.SetLeft(v_Pixel.m_PixelValue, p_Point.getIntX());
@@ -286,22 +376,36 @@ namespace AlgorithmsImplementation1
             double v_YVector = double.Parse(m_YInput.Text) * -1;
 
             // Aplicar transformação em um ponto
-            if (m_PointList.Count == 1)
+            if (m_PointList != null)
             {
-                m_PointList[0].TranslateSum(v_XVector, v_YVector);
-                DrawPixelByPoint(m_PointList[0]);
-            } else if (m_Line != null) // Aplicar transformação em uma reta
+                foreach (MyPoint p_Point in m_PointList)
+                {
+                    p_Point.TranslateSum(v_XVector, v_YVector);
+                    DrawPixelByPoint(p_Point);
+                }
+            } 
+            if (m_LineList != null) // Aplicar transformação em uma reta
             {
-                m_Line.Translation(v_XVector, v_YVector);
-                DrawLine();
-            } else if(m_Polygon != null) // Aplicar transformação em um poligono
+                foreach (MyLine p_Line in m_LineList)
+                {
+                    p_Line.Translation(v_XVector, v_YVector);
+                    DrawLine(p_Line, false);
+                }
+            } 
+            if(m_PolygonList != null) // Aplicar transformação em um poligono
             {
-                m_Polygon.Translation(v_XVector, v_YVector);
-                DrawListOfPoints(m_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true));
-            } else if (m_Circ != null) // Aplicar transformação em uma circunferência
+                foreach (MyPolygon p_Polygon in m_PolygonList) {
+                    p_Polygon.Translation(v_XVector, v_YVector);
+                    DrawListOfPoints(p_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true), false);
+                }
+            } 
+            if (m_CircList != null) // Aplicar transformação em uma circunferência
             {
-                m_Circ.Translation(v_XVector, v_YVector);
-                DrawCirc();
+                foreach (MyCircumference p_Circ in m_CircList)
+                {
+                    p_Circ.Translation(v_XVector, v_YVector);
+                    DrawCirc(p_Circ, false);
+                }
             }
 
         }
@@ -322,25 +426,37 @@ namespace AlgorithmsImplementation1
             double v_YVector = double.Parse(m_YInput.Text);
 
             // Aplicar transformação em um ponto
-            if (m_PointList.Count == 1)
+            if (m_PointList != null)
             {
-                m_PointList[0].Scale(v_XVector, v_YVector);
-                DrawPixelByPoint(m_PointList[0]);
+                foreach (MyPoint p_Point in m_PointList)
+                {
+                    p_Point.Scale(v_XVector, v_YVector);
+                    DrawPixelByPoint(p_Point);
+                }
             }
-            else if (m_Line != null) // Aplicar transformação em uma reta
+            if (m_LineList != null) // Aplicar transformação em uma reta
             {
-                m_Line.Scale(v_XVector, v_YVector);
-                DrawLine();
+                foreach (MyLine p_Line in m_LineList)
+                {
+                    p_Line.Scale(v_XVector, v_YVector);
+                    DrawLine(p_Line, false);
+                }
             }
-            else if (m_Polygon != null) // Aplicar transformação em um poligono
+            if (m_PolygonList != null) // Aplicar transformação em um poligono
             {
-                m_Polygon.Scale(v_XVector, v_YVector);
-                DrawPolygon();
+                foreach (MyPolygon p_Polygon in m_PolygonList)
+                {
+                    p_Polygon.Scale(v_XVector, v_YVector);
+                    DrawPolygon(p_Polygon);
+                }
             }
-            else if (m_Circ != null) // Aplicar transformação em uma circunferência
+            if (m_CircList != null) // Aplicar transformação em uma circunferência
             {
-                m_Circ.Scale(v_YVector);
-                DrawCirc();
+                foreach (MyCircumference p_Circ in m_CircList)
+                {
+                    p_Circ.Scale(v_YVector);
+                    DrawCirc(p_Circ, false);
+                }
             }
 
         }
@@ -358,25 +474,37 @@ namespace AlgorithmsImplementation1
             double v_Theta = -1 * double.Parse(m_YInput.Text) * Math.PI / 180.0;
 
             // Aplicar transformação em um ponto
-            if (m_PointList.Count == 1)
+            if (m_PointList != null)
             {
-                m_PointList[0].Rotation(v_Theta);
-                DrawPixelByPoint(m_PointList[0]);
+                foreach (MyPoint p_Point in m_PointList)
+                {
+                    p_Point.Rotation(v_Theta);
+                    DrawPixelByPoint(p_Point);
+                }
             }
-            else if (m_Line != null) // Aplicar transformação em uma reta
+            if (m_LineList != null) // Aplicar transformação em uma reta
             {
-                m_Line.Rotation(v_Theta);
-                DrawLine();
+                foreach (MyLine p_Line in m_LineList)
+                {
+                    p_Line.Rotation(v_Theta);
+                    DrawLine(p_Line, false);
+                }
             }
-            else if (m_Polygon != null) // Aplicar transformação em um poligono
+            if (m_PolygonList != null) // Aplicar transformação em um poligono
             {
-                m_Polygon.Rotation(v_Theta);
-                DrawPolygon();
+                foreach (MyPolygon p_Polygon in m_PolygonList)
+                {
+                    p_Polygon.Rotation(v_Theta);
+                    DrawPolygon(p_Polygon);
+                }
             }
-            else if (m_Circ != null) // Aplicar transformação em uma circunferência
+            if (m_CircList != null) // Aplicar transformação em uma circunferência
             {
-                m_Circ.Rotation(v_Theta);
-                DrawCirc();
+                foreach (MyCircumference p_Circ in m_CircList)
+                {
+                    p_Circ.Rotation(v_Theta);
+                    DrawCirc(p_Circ, false);
+                }
             }
 
         }
@@ -393,25 +521,37 @@ namespace AlgorithmsImplementation1
             double v_YCanvas = (Canvas.ActualHeight);
 
             // Aplicar transformação em um ponto
-            if (m_PointList.Count == 1)
+            if (m_PointListAux != null)
             {
-                m_PointList[0].Reflection(m_XCheck.IsChecked == true, m_YCheck.IsChecked == true, v_XCanvas, v_YCanvas);
-                DrawPixelByPoint(m_PointList[0]);
+                foreach (MyPoint p_Point in m_PointList)
+                {
+                    p_Point.Reflection(m_XCheck.IsChecked == true, m_YCheck.IsChecked == true, v_XCanvas, v_YCanvas);
+                    DrawPixelByPoint(p_Point);
+                }
             }
-            else if (m_Line != null) // Aplicar transformação em uma reta
+            if (m_LineList != null) // Aplicar transformação em uma reta
             {
-                m_Line.Reflection(m_XCheck.IsChecked == true, m_YCheck.IsChecked == true, v_XCanvas, v_YCanvas);
-                DrawLine();
+                foreach (MyLine p_Line in m_LineList)
+                {
+                    p_Line.Reflection(m_XCheck.IsChecked == true, m_YCheck.IsChecked == true, v_XCanvas, v_YCanvas);
+                    DrawLine(p_Line, true);
+                }
             }
-            else if (m_Polygon != null) // Aplicar transformação em um poligono
+            if (m_PolygonList != null) // Aplicar transformação em um poligono
             {
-                m_Polygon.Reflection(m_XCheck.IsChecked == true, m_YCheck.IsChecked == true, v_XCanvas, v_YCanvas);
-                DrawListOfPoints(m_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true));
+                foreach (MyPolygon p_Polygon in m_PolygonList)
+                {
+                    p_Polygon.Reflection(m_XCheck.IsChecked == true, m_YCheck.IsChecked == true, v_XCanvas, v_YCanvas);
+                    DrawListOfPoints(p_Polygon.getAllPoints(RadioButtonDDA.IsChecked == true), true);
+                }
             }
-            else if (m_Circ != null) // Aplicar transformação em uma circunferência
+            if (m_CircList != null) // Aplicar transformação em uma circunferência
             {
-                m_Circ.Reflection(m_XCheck.IsChecked == true, m_YCheck.IsChecked == true, v_XCanvas, v_YCanvas);
-                DrawCirc();
+                foreach (MyCircumference p_Circ in m_CircList)
+                {
+                    p_Circ.Reflection(m_XCheck.IsChecked == true, m_YCheck.IsChecked == true, v_XCanvas, v_YCanvas);
+                    DrawCirc(p_Circ, false);
+                }
             }
 
         }
@@ -447,23 +587,59 @@ namespace AlgorithmsImplementation1
         /* Método para clicks do usuário definirem área de recorte */
         private void DefineClippling(object sender, EventArgs e)
         {
-            m_IsDefiningClipping = true;
+            if (!m_HasClipping) {
+                m_IsDefiningClipping = true;
+                m_ClippingButton.Content = "Limpar Recorte";
+            }
+            else
+            {
+                m_HasClipping = false;
+                m_ClippingButton.Content = "Definir Recorte";
+                Canvas.Children.Clear();
+
+                // Redesenhando figuras originais
+                foreach (MyLine p_Line in m_LineList)
+                {
+                    DrawLine(p_Line, false);
+                }
+
+                foreach (MyPolygon p_Polygon in m_PolygonList)
+                {
+                    DrawPolygon(p_Polygon);
+                }
+
+                foreach (MyPoint p_Point in m_PointList)
+                {
+                    DrawPixelByPoint(p_Point);
+                }
+
+                foreach (MyCircumference p_Circ in m_CircList)
+                {
+                    DrawCirc(p_Circ, false);
+                }
+
+                m_MaxCoordClipping = m_MinCoordClipping = null;
+            }
         }
 
         /* Método para limpar tela */
         private void RemoveItensFromCanvas(object sender, EventArgs e)
         {
-            Canvas.Children.Clear();
+
             // Canvas não possui mais desenhos
             m_HasDrawing = false;
-
+            Canvas.Children.Clear();
             // Limpar atributos da tela
-            m_PointList = new List<MyPoint> ();
-            m_Line = null;
-            m_Polygon =  null;
-            m_Circ = null;
+            m_PointListAux = new List<MyPoint> ();
+            m_PointList = new List<MyPoint>();
+            m_LineList = new List<MyLine>();
+            m_PolygonList = new List<MyPolygon>();
+            m_CircList = new List<MyCircumference>();
             m_MinCoordClipping = null;
             m_MaxCoordClipping = null;
+            m_HasClipping = false;
+            m_IsDefiningClipping = false;
+            m_ClippingButton.Content = "Definir Recorte";
         }
 
         /* Método para controlar elementos mostrados na tela conforme radio buttons selecionados */

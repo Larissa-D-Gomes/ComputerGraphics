@@ -282,5 +282,131 @@ namespace AlgorithmsImplementation1.Model
             m_Point2.Reflection(p_ApplyX, p_ApplyY, p_MiddleXCanvas, p_MiddleYCanvas);
         }
 
+        /* Método para calcular segmento de reta que será plotado na 
+         * área de recorte, por Cohen-Sutherland, algoritmo que utiliza áreas codificadas
+         * @param int p_XMax, int p_XMin, int p_YMax, int p_YMin -> coordenadas da área de recorte
+         * @return MyLine -> segmento de reta a ser plotado
+         */
+        public MyLine CohenSutherland(int p_XMax, int p_XMin, int p_YMax, int p_YMin)
+        {
+            MyLine v_ClipplingLine = null;
+
+            bool v_Done = false;
+            bool v_Accepted = false;
+
+            double v_X1 = this.m_Point1.getX();
+            double v_Y1 = this.m_Point1.getY();
+            double v_X2 = this.m_Point2.getX();
+            double v_Y2 = this.m_Point2.getY();
+            double v_X = 0 , v_Y = 0;
+
+            // Enquanto cálculo não for finalizado
+            while (!v_Done)
+            {
+                // Calculando códigos de pontos inicial e final da reta 
+                int v_Code1 = getRegionCode((int)Math.Round(v_X1), (int)Math.Round(v_Y1), 
+                                             p_XMax, p_XMin, p_YMax, p_YMin);
+                int v_Code2 = getRegionCode((int)Math.Round(v_X2), (int)Math.Round(v_Y2), 
+                                            p_XMax, p_XMin, p_YMax, p_YMin);
+
+                int v_CodeOut;
+
+                // Reta comepletamente dentro da área de corte
+                if (v_Code1 == 0 && v_Code2 == 0)
+                    v_Done = v_Accepted = true; // Nenhum recorte a fazer
+
+                // Se algum bit mesma posição nos códigos forem iguais a 1
+                // o segmento está completamente fora em alguma lateral.
+                else if ((v_Code1 & v_Code2) != 0)
+                    v_Done = true;
+                // Se ponto 1 está fora
+                else
+                {
+                    // Determinando ponto exterior
+                    if (v_Code1 != 0)
+                        v_CodeOut = v_Code1;
+                    else
+                        v_CodeOut = v_Code2;
+
+                    // Se bit 1 diferente de 0, definir intercessão com
+                    // limite esquerdo da área de recorte do ponto
+                    if ((v_CodeOut & (1 << 0)) != 0)
+                    {
+                        v_X = p_XMin;
+                        v_Y = v_Y1 + (v_Y2 - v_Y1) * (p_XMin - v_X1) / (v_X2 - v_X1);
+                    }
+                    // Se bit 2 diferente de 0, definir intercessão com
+                    // limite direito da área de recorte do ponto 
+                    else if ((v_CodeOut & (1 << 1)) != 0)
+                    {
+                        v_X = p_XMax;
+                        v_Y = v_Y1 + (v_Y2 - v_Y1) * (p_XMax - v_X1) / (v_X2 - v_X1);
+                    }
+                    // Se bit 3 diferente de 0, definir intercessão com
+                    // limite inferior da área de recorte do ponto 
+                    else if ((v_CodeOut & (1 << 2)) != 0)
+                    {
+                        v_X = v_X1 + (v_X2 - v_X1) * (p_YMin - v_Y1) / (v_Y2 - v_Y1);
+                        v_Y = p_YMin;
+                    }
+                    // Se bit 4 diferente de 0, definir intercessão com
+                    // limite superior da área de recorte do ponto 
+                    else if ((v_CodeOut & (1 << 3)) != 0)
+                    {
+                        v_X = v_X1 + (v_X2 - v_X1) * (p_YMax - v_Y1) / (v_Y2 - v_Y1);
+                        v_Y = p_YMax;
+                    }
+                    if (v_CodeOut == v_Code1)
+                    {
+                        v_X1 = v_X;
+                        v_Y1 = v_Y;
+                    }
+                    else
+                    {
+                        v_X2 = v_X;
+                        v_Y2 = v_Y;
+                    }
+                }
+            }
+
+            if (v_Accepted)
+            {
+                MyPoint v_P1 = new MyPoint((int)Math.Round(v_X1), (int)Math.Round(v_Y1));
+                MyPoint v_P2 = new MyPoint((int)Math.Round(v_X2), (int)Math.Round(v_Y2));
+                v_ClipplingLine = new MyLine(v_P1, v_P2);
+            }
+
+            return v_ClipplingLine;
+
+        }
+
+        /* Método para definir código do ponto na área de recorte 
+         * para o algoritmo de Cohen-Sutherland
+         * @param int p_X, int p_Y, int p_XMax, int p_XMin, int p_YMax, int p_Ymin
+         * @return int code
+         */
+        private int getRegionCode(int p_X, int p_Y, int p_XMax, int p_XMin, int p_YMax, int p_YMin)
+        {
+            int v_Code = 0;
+
+            // Verificar se ponto está à esquerda da área de recorte
+            if (p_X < p_XMin)
+                v_Code += 1; // Setando primeiro bit
+
+            // Verificar se ponto está à direita da área de recorte
+            if (p_X > p_XMax)
+                v_Code += 2; // Setando segundo bit
+
+            // Verificar se ponto está abaixo da área de recorte
+            if (p_Y < p_YMin)
+                v_Code += 4; // Setando terceiro bit
+
+            // Verificar se ponto está acima da área de recorte
+            if (p_Y > p_YMax)
+                v_Code += 8; // Setando quarto bit
+
+            return v_Code;
+        }
+
     }
 }

@@ -112,9 +112,9 @@ namespace AlgorithmsImplementation1.Model
         }
 
         /* Método para aplicar reflexão na reta, em relação aos eixos do meio do canvas.
-        * O eixo Y será definido pela metade do width do canvas e X pela metade do heigth
-        * @param bool p_ApplyX, bool p_ApplyY, double p_MiddleXCanvas, double p_MiddleYCanvas
-        */
+         * O eixo Y será definido pela metade do width do canvas e X pela metade do heigth
+         * @param bool p_ApplyX, bool p_ApplyY, double p_MiddleXCanvas, double p_MiddleYCanvas
+         */
         public void Reflection(bool p_ApplyX, bool p_ApplyY, double p_MiddleXCanvas, double p_MiddleYCanvas)
         {
             foreach (MyLine v_Line in this.m_PolygonLines)
@@ -123,6 +123,26 @@ namespace AlgorithmsImplementation1.Model
                 // operação seja feita duas vezes no mesmo ponto
                 v_Line.m_Point1.Reflection(p_ApplyX, p_ApplyY, p_MiddleXCanvas, p_MiddleYCanvas);
             }
+        }
+
+        /* Método para calcular segmentos de retas de poligonos que serão plotados pela
+         * área de recorte
+         * @param int p_XMax, int p_XMin, int p_YMax, int p_YMin -> coordenadas da área de recorte
+         * @return List<MyLine> -> lista de segmentos de reta a serem plotados
+         */
+        public List<MyLine> CohenSutherland(int p_XMax, int p_XMin, int p_YMax, int p_YMin)
+        {
+            List<MyLine> p_List = new List<MyLine>();
+
+            foreach(MyLine p_Line in this.m_PolygonLines)
+            {
+                MyLine v_NewLine = p_Line.CohenSutherland(p_XMax, p_XMin, p_YMax, p_YMin);
+
+                if(v_NewLine != null)
+                    p_List.Add(v_NewLine);
+            }
+
+            return p_List;
         }
 
     }
