@@ -408,5 +408,104 @@ namespace AlgorithmsImplementation1.Model
             return v_Code;
         }
 
+
+        /* Método para calcular segmento de reta que será plotado na 
+         * área de recorte, por LiangBarsky, algoritmo que utiliza equação paramétrica da reta
+         * @param int p_XMax, int p_XMin, int p_YMax, int p_YMin -> coordenadas da área de recorte
+         * @return MyLine -> segmento de reta a ser plotado
+         */
+        public MyLine LiangBarsky(int p_XMax, int p_XMin, int p_YMax, int p_YMin)
+        {
+            MyLine v_ClipplingLine = null;
+
+            //Variáveis u da equação paramétrica da reta
+            double v_U1 = 0.0;
+            double v_U2 = 1.0;
+
+            double v_DeltaX = m_Point2.getX() - m_Point1.getX();
+            double v_DeltaY = m_Point2.getY() - m_Point1.getY();
+
+            // Chance de intercessão pela fronteira da esquerda
+            if(ClipTest(v_DeltaX * -1, m_Point1.getX() - p_XMin, ref v_U1, ref v_U2))
+                // Chance de intercessão pela fronteira da direita
+                if (ClipTest(v_DeltaX, p_XMax - m_Point1.getX(), ref v_U1, ref v_U2))
+                    // Chance de intercessão pela fronteira inferior
+                    if (ClipTest(v_DeltaY * -1, m_Point1.getY() - p_YMin, ref v_U1, ref v_U2))
+                        // Chance de intercessão pela fronteira superior 
+                        if (ClipTest(v_DeltaY, p_YMax - m_Point1.getY(), ref v_U1, ref v_U2))
+                        {
+                            MyPoint v_P1 = new MyPoint(m_Point1.getIntX(), m_Point1.getIntY());
+                            MyPoint v_P2 = new MyPoint(m_Point2.getIntX(), m_Point2.getIntY());
+                            // Reta está dentro da área de recorte
+                            v_ClipplingLine = new MyLine(v_P1, v_P2);
+
+                            // Caso ponto final do segmento for diferente do
+                            // ponto final original, atualizar ponto conforme u encontrado
+                            if (v_U2 < 1.0)
+                            {
+                                v_ClipplingLine.m_Point2.setX((int)Math.Round(this.m_Point1.getX() + v_U2 * v_DeltaX));
+                                v_ClipplingLine.m_Point2.setY((int)Math.Round(this.m_Point1.getY() + v_U2 * v_DeltaY));
+                            }
+
+
+                            // Caso ponto inicial do segmento for diferente do
+                            // ponto final original, atualizar ponto conforme u encontrado
+                            if (v_U1 > 0.0)
+                            {
+                                v_ClipplingLine.m_Point1.setX((int)Math.Round(this.m_Point1.getX() + v_U1 * v_DeltaX));
+                                v_ClipplingLine.m_Point1.setY((int)Math.Round(this.m_Point1.getY() + v_U1 * v_DeltaY));
+                            }
+                        }
+
+            return v_ClipplingLine;
+        }
+
+
+        /* Função que analisa chance da reta estar dentro da janela de visualização
+         * a partir do u d equação paramétrica da reta, analisando sentido de 
+         * crescimento. Variáveis U originais são passadas como referência 
+         * para poderem ser atualizadas conforme u dos pontos candidatos
+         * a intercessão com limites da janela.
+         * @param double p_P, double p_Q, ref double p_U1, ref double p_U2
+         */
+        public bool ClipTest(double p_P, double p_Q, ref double p_U1, ref double p_U2)
+        {
+            bool v_Result = true;
+
+            // Caso que reta cresce de fora para dentro
+            if (p_P < 0.0)
+            {
+                // Calculando U de intercessão com a fronteira
+                double v_UR = p_Q / p_P;
+
+                // Se v_UR > p_U2, não há como haver intercessão com fronteira,
+                // pois o valor de u é impossível, reta completamente depois da fronteira.
+                if (v_UR > p_U2)
+                    v_Result = false;
+                else if (v_UR > p_U1) // Há como haver intercessão com a fronteira
+                                      // A reta está depois da fronteira calculada
+                    p_U1 = v_UR;
+            }
+            else if (p_P > 0.0)// Caso que reta cresce de dentro para fora 
+            {
+                // Calculando U de intercessão com a fronteira
+                double v_UR = p_Q / p_P;
+
+                // Se v_UR < p_U1, não há como haver intercessão com fronteira,
+                // pois o valor de u é impossível, reta completamente antes da fronteira.
+                if (v_UR < p_U1)
+                    v_Result = false;
+                else if (v_UR < p_U2) // Há como haver intercessão com a fronteira
+                                      // A reta está depois da fronteira calculada
+                    p_U2 = v_UR;
+            }
+            else if (p_Q < 0.0) // Reta paralela a fronteira sem chance de intercessão
+            {
+                v_Result = false;
+            }
+
+            return v_Result;
+        }
+
     }
 }

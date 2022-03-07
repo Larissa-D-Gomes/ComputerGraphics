@@ -126,7 +126,7 @@ namespace AlgorithmsImplementation1.Model
         }
 
         /* Método para calcular segmentos de retas de poligonos que serão plotados pela
-         * área de recorte
+         * área de recorte Cohen-Sutherland
          * @param int p_XMax, int p_XMin, int p_YMax, int p_YMin -> coordenadas da área de recorte
          * @return List<MyLine> -> lista de segmentos de reta a serem plotados
          */
@@ -145,5 +145,24 @@ namespace AlgorithmsImplementation1.Model
             return p_List;
         }
 
+        /* Método para calcular segmentos de retas de poligonos que serão plotados pela
+         * área de recorte por Liang-Barsky
+         * @param int p_XMax, int p_XMin, int p_YMax, int p_YMin -> coordenadas da área de recorte
+         * @return List<MyLine> -> lista de segmentos de reta a serem plotados
+         */
+        public List<MyLine> LiangBarsky(int p_XMax, int p_XMin, int p_YMax, int p_YMin)
+        {
+            List<MyLine> p_List = new List<MyLine>();
+
+            foreach (MyLine p_Line in this.m_PolygonLines)
+            {
+                MyLine v_NewLine = p_Line.LiangBarsky(p_XMax, p_XMin, p_YMax, p_YMin);
+
+                if (v_NewLine != null)
+                    p_List.Add(v_NewLine);
+            }
+
+            return p_List;
+        }
     }
 }

@@ -129,31 +129,10 @@ namespace AlgorithmsImplementation1
                 m_HasClipping = true;
                 drawClippingArea();
 
-                // Definindo retas plotadas pelo recorte
-                foreach (MyLine p_Line in this.m_LineList)
-                {
-                    MyLine v_ClipplingLine = p_Line.CohenSutherland(m_MaxCoordClipping.getIntX(),
-                    m_MinCoordClipping.getIntX(), m_MaxCoordClipping.getIntY(), m_MinCoordClipping.getIntY());
-
-                    if (v_ClipplingLine != null)
-                    {
-                       DrawLine(v_ClipplingLine, false);
-                    }
-                    
-                }
-
-                // Definindo retas de poligonos plotadas pelo recorte
-                foreach (MyPolygon p_Polygon in m_PolygonList)
-                {
-                    List<MyLine> v_ClipplingLineList = p_Polygon.CohenSutherland(m_MaxCoordClipping.getIntX(),
-                    m_MinCoordClipping.getIntX(), m_MaxCoordClipping.getIntY(), m_MinCoordClipping.getIntY());
-
-                    foreach (MyLine v_Line in v_ClipplingLineList)
-                    {
-                        DrawLine(v_Line, false);
-                    }
-
-                }
+                if(RadioButtonClipCod.IsChecked == true)
+                    drawClippingCohenSutherland();
+                else
+                    drawClippingLiangBarsky();
 
                 // Definindo pontos dentro do recorte
                 foreach (MyPoint v_Point in m_PointList)
@@ -182,8 +161,71 @@ namespace AlgorithmsImplementation1
 
                     }
                 }
-
+                RadioButtonClipCod.Visibility = Visibility.Hidden;
+                RadioButtonClipParm.Visibility = Visibility.Hidden;
                 m_IsDefiningClipping = false;
+            }
+        }
+
+
+        /* Método paradesenhar segmentos de reta do clipping por Cohen-Sutherland*/
+        private void drawClippingCohenSutherland()
+        {
+            // Definindo retas plotadas pelo recorte
+            foreach (MyLine p_Line in this.m_LineList)
+            {
+                MyLine v_ClipplingLine = p_Line.CohenSutherland(m_MaxCoordClipping.getIntX(),
+                m_MinCoordClipping.getIntX(), m_MaxCoordClipping.getIntY(), m_MinCoordClipping.getIntY());
+
+                if (v_ClipplingLine != null)
+                {
+                    DrawLine(v_ClipplingLine, false);
+                }
+
+            }
+
+            // Definindo retas de poligonos plotadas pelo recorte
+            foreach (MyPolygon p_Polygon in m_PolygonList)
+            {
+                List<MyLine> v_ClipplingLineList = p_Polygon.LiangBarsky(m_MaxCoordClipping.getIntX(),
+                m_MinCoordClipping.getIntX(), m_MaxCoordClipping.getIntY(), m_MinCoordClipping.getIntY());
+
+                foreach (MyLine v_Line in v_ClipplingLineList)
+                {
+                    DrawLine(v_Line, false);
+                }
+
+            }
+        }
+
+
+        /* Método paradesenhar segmentos de reta do clipping por Liang-Barsky*/
+        private void drawClippingLiangBarsky()
+        {
+            // Definindo retas plotadas pelo recorte
+            foreach (MyLine p_Line in this.m_LineList)
+            {
+                MyLine v_ClipplingLine = p_Line.LiangBarsky(m_MaxCoordClipping.getIntX(),
+                m_MinCoordClipping.getIntX(), m_MaxCoordClipping.getIntY(), m_MinCoordClipping.getIntY());
+
+                if (v_ClipplingLine != null)
+                {
+                    DrawLine(v_ClipplingLine, false);
+                }
+
+            }
+
+            // Definindo retas de poligonos plotadas pelo recorte
+            foreach (MyPolygon p_Polygon in m_PolygonList)
+            {
+                List<MyLine> v_ClipplingLineList = p_Polygon.CohenSutherland(m_MaxCoordClipping.getIntX(),
+                m_MinCoordClipping.getIntX(), m_MaxCoordClipping.getIntY(), m_MinCoordClipping.getIntY());
+
+                foreach (MyLine v_Line in v_ClipplingLineList)
+                {
+                    DrawLine(v_Line, false);
+                }
+
             }
         }
 
@@ -590,6 +632,8 @@ namespace AlgorithmsImplementation1
             if (!m_HasClipping) {
                 m_IsDefiningClipping = true;
                 m_ClippingButton.Content = "Limpar Recorte";
+                RadioButtonClipCod.Visibility = Visibility.Visible;
+                RadioButtonClipParm.Visibility = Visibility.Visible;
             }
             else
             {
@@ -597,6 +641,8 @@ namespace AlgorithmsImplementation1
                 m_ClippingButton.Content = "Definir Recorte";
                 Canvas.Children.Clear();
 
+                RadioButtonClipCod.Visibility = Visibility.Hidden;
+                RadioButtonClipParm.Visibility = Visibility.Hidden;
                 // Redesenhando figuras originais
                 foreach (MyLine p_Line in m_LineList)
                 {
@@ -640,6 +686,9 @@ namespace AlgorithmsImplementation1
             m_HasClipping = false;
             m_IsDefiningClipping = false;
             m_ClippingButton.Content = "Definir Recorte";
+
+            RadioButtonClipCod.Visibility = Visibility.Hidden;
+            RadioButtonClipParm.Visibility = Visibility.Hidden;
         }
 
         /* Método para controlar elementos mostrados na tela conforme radio buttons selecionados */

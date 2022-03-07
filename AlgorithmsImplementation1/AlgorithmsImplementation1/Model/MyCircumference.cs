@@ -59,6 +59,9 @@ namespace AlgorithmsImplementation1.Model
          */
         public List<MyPoint> BresenhamAlgorithm()
         {
+            m_Center.setX(3);
+            m_Center.setY(4);
+            m_Radius = 6;
             List<MyPoint> v_Points = new List<MyPoint>();
 
             // Setando x = 0 e Y = raio
