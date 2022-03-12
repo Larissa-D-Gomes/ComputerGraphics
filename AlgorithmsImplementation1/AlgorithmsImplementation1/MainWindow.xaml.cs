@@ -187,7 +187,7 @@ namespace AlgorithmsImplementation1
             // Definindo retas de poligonos plotadas pelo recorte
             foreach (MyPolygon p_Polygon in m_PolygonList)
             {
-                List<MyLine> v_ClipplingLineList = p_Polygon.LiangBarsky(m_MaxCoordClipping.getIntX(),
+                List<MyLine> v_ClipplingLineList = p_Polygon.CohenSutherland(m_MaxCoordClipping.getIntX(),
                 m_MinCoordClipping.getIntX(), m_MaxCoordClipping.getIntY(), m_MinCoordClipping.getIntY());
 
                 foreach (MyLine v_Line in v_ClipplingLineList)
@@ -218,7 +218,7 @@ namespace AlgorithmsImplementation1
             // Definindo retas de poligonos plotadas pelo recorte
             foreach (MyPolygon p_Polygon in m_PolygonList)
             {
-                List<MyLine> v_ClipplingLineList = p_Polygon.CohenSutherland(m_MaxCoordClipping.getIntX(),
+                List<MyLine> v_ClipplingLineList = p_Polygon.LiangBarsky(m_MaxCoordClipping.getIntX(),
                 m_MinCoordClipping.getIntX(), m_MaxCoordClipping.getIntY(), m_MinCoordClipping.getIntY());
 
                 foreach (MyLine v_Line in v_ClipplingLineList)
@@ -261,11 +261,12 @@ namespace AlgorithmsImplementation1
                 // Se dois pontos da reta já foram desenhados 
                 if (m_PointListAux.Count == 2)
                 {
+                    MyLine v_NewLine = new MyLine(m_PointListAux[0], m_PointListAux[1]);
                     // Desenhar reta a partir dos pontos desenhados
-                    m_LineList.Add(new MyLine(m_PointListAux[0], m_PointListAux[1]));
+                    m_LineList.Add(v_NewLine);
 
-                    foreach (MyLine p_Line in m_LineList)
-                        DrawLine(p_Line, false);
+                    
+                    DrawLine(v_NewLine, false);
                     m_PointListAux = new List<MyPoint>();
                 }
             } else if (RadioButtonCirc.IsChecked == true)
@@ -699,11 +700,16 @@ namespace AlgorithmsImplementation1
 
             if (RadioButtonScale.IsChecked == true && RadioButtonCirc.IsChecked == true)
             {
-                m_YText.Text = "R * ";
-                m_YText.Visibility = Visibility.Visible;
+                m_YText.Text = "Y: ";
+                m_XText.Text = "X: ";
+                m_XCheck.Visibility = Visibility.Hidden;
+                m_YCheck.Visibility = Visibility.Hidden;
+
+                m_XText.Visibility = Visibility.Visible;
                 m_YInput.Visibility = Visibility.Visible;
-                m_XText.Visibility = Visibility.Hidden;
-                m_XInput.Visibility = Visibility.Hidden;
+                m_XInput.Visibility = Visibility.Visible;
+                m_XCheck.Visibility = Visibility.Hidden;
+                m_YCheck.Visibility = Visibility.Hidden;
 
             }
             else if (RadioButtonRot.IsChecked == true)

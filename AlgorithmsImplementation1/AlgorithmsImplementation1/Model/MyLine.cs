@@ -68,14 +68,14 @@ namespace AlgorithmsImplementation1.Model
             return v_LinePoints;
         }
 
-
+        /* Implementção do Algoritmo BresenhamAlgorithm para rasterização de retas em 
+         * um canvas a partir dos dois pontos de extremidade
+         * @return List<MyPoint> -> Lista de pontos a serem desenhados
+         *  na Matriz (Canvas)
+         */
         public List<MyPoint> BresenhamAlgorithm()
         {
             List<MyPoint> v_LinePoints = new List<MyPoint>();
-            this.m_Point1.setX(2);
-            this.m_Point1.setY(0);
-            this.m_Point2.setX(6);
-            this.m_Point2.setY(0);
 
             // Definindo Delta x e y da reta
             int v_DeltaX = this.m_Point2.getIntX() - this.m_Point1.getIntX();
